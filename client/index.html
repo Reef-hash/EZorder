@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZOrder - Smart Order Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Manrope', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+      animation: gradientShift 15s ease infinite;
+    }
+    @keyframes gradientShift {
+      0%, 100% { filter: hue-rotate(0deg); }
+      50% { filter: hue-rotate(15deg); }
+    }
+    .glass-effect {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .tab-btn {
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+      transition: all 0.3s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #10b981, #8b5cf6);
+      color: white;
+      border-color: transparent;
+    }
+    .tab-btn:hover {
+      transform: translateY(-2px);
+    }
+    .tab-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      font-size: 18px;
+    }
+    .tab-btn.active .tab-icon {
+      animation: iconPulse 0.3s ease-out;
+    }
+    @keyframes iconPulse {
+      0% { transform: scale(0.8); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="text-slate-100">
+  <!-- Login Page -->
+  <div id="login-page" class="min-h-screen flex items-center justify-center px-4">
+    <div class="glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl border border-slate-700/50">
+      <h1 class="text-4xl font-bold mb-2 text-center bg-gradient-to-r from-emerald-400 to-purple-500 bg-clip-text text-transparent">EZOrder</h1>
+      <p class="text-center text-slate-400 mb-8">Professional Order Management System</p>
+      
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Username</label>
+          <input type="text" id="login-username" placeholder="owner@ezorder" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"><i class="fas fa-sign-in-alt"></i> Login</button>
+      </form>
+      
+      <p class="text-center text-slate-400 text-sm mt-4">Demo: owner / password123</p>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-page" class="hidden">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-emerald-600 to-purple-600 shadow-2xl relative overflow-hidden">
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full -mr-48 -mt-48"></div>
+      </div>
+      <div class="relative z-10 max-w-7xl mx-auto px-6 py-12">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-4xl font-bold text-white mb-2">EZOrder</h1>
+            <p class="text-emerald-100">Professional Order Management System</p>
+          </div>
+          <button id="logout-btn" class="bg-white/20 hover:bg-white/30 text-white px-6 py-2 rounded-lg transition flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-12">
+      <!-- TAB NAVIGATION -->
+      <div class="flex gap-4 mb-8 flex-wrap">
+        <button class="tab-btn active px-6 py-3 rounded-lg font-semibold transition" data-tab="orders">
+          <span class="tab-icon"><i class="fas fa-shopping-cart"></i></span>Take Order
+        </button>
+        <button class="tab-btn px-6 py-3 rounded-lg font-semibold transition" data-tab="manage">
+          <span class="tab-icon"><i class="fas fa-box"></i></span>Manage Products
+        </button>
+        <button class="tab-btn px-6 py-3 rounded-lg font-semibold transition" data-tab="history">
+          <span class="tab-icon"><i class="fas fa-history"></i></span>Order History
+        </button>
+      </div>
+
+      <!-- ORDERS TAB (DEFAULT) -->
+      <div id="orders-tab" class="tab-content grid lg:grid-cols-2 gap-8">
+        <!-- Left: Products -->
+        <div>
+          <div class="glass-effect rounded-2xl p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent">Products</h2>
+            <p class="text-slate-400 text-sm mb-4">Click items to add to your order</p>
+            <div id="categories-container" class="space-y-6">
+              <!-- Categories will be dynamically inserted here -->
+            </div>
+            <div id="no-products" class="text-center py-12 text-slate-400">
+              <p>No products yet. Add a product to get started!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Order Builder -->
+        <div>
+          <div class="glass-effect rounded-2xl p-6 sticky top-6">
+            <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent">Current Order</h2>
+            
+            <form id="order-form" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Customer Name *</label>
+                <input type="text" id="customer-name" placeholder="e.g. Ahmed" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+              </div>
+
+              <div class="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                <h3 class="font-semibold text-slate-300 mb-3">Order Items</h3>
+                <div id="order-items-list" class="space-y-2 max-h-64 overflow-y-auto mb-3">
+                  <p class="text-slate-500 text-sm">No items added yet</p>
+                </div>
+              </div>
+
+              <div id="order-marks-section" class="hidden bg-purple-500/10 rounded-lg p-4 border border-purple-500/30">
+                <h3 class="font-semibold text-purple-300 mb-3 flex items-center gap-2"><i class="fas fa-flag"></i> Special Marks</h3>
+                <div id="order-marks-display" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <div class="bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/30 rounded-lg p-4">
+                <div class="flex justify-between mb-2">
+                  <span class="text-slate-300">Subtotal:</span>
+                  <span id="subtotal" class="text-slate-100 font-semibold">RM 0.00</span>
+                </div>
+                <div class="border-t border-slate-600 pt-2 flex justify-between">
+                  <span class="text-lg font-bold text-emerald-400">Total:</span>
+                  <span id="total" class="text-lg font-bold text-emerald-400">RM 0.00</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button type="button" class="bg-purple-600/50 hover:bg-purple-600/60 text-purple-200 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2" onclick="openMarksModal()"><i class="fas fa-flag"></i> Add Mark</button>
+                <button type="button" id="clear-order-btn" class="bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 py-3 rounded-lg font-semibold transition border border-slate-600 flex items-center justify-center gap-2"><i class="fas fa-trash"></i> Clear</button>
+              </div>
+
+              <button type="submit" id="confirm-order-btn" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50 flex items-center justify-center gap-2 mb-3" disabled><i class="fas fa-check"></i> Confirm Order</button>
+
+              <div id="whatsapp-message-box" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4">
+                <h4 class="font-semibold text-emerald-400 mb-3">Message Preview</h4>
+                <p id="whatsapp-message" class="bg-slate-800 p-3 rounded text-sm text-slate-300 whitespace-pre-wrap mb-3 max-h-40 overflow-y-auto"></p>
+                <button type="button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold transition flex items-center justify-center gap-2" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy Message</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANAGE PRODUCTS TAB -->
+      <div id="manage-tab" class="tab-content hidden">
+        <!-- Add Product Form -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+          <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent">Add New Product</h2>
+          
+          <form id="product-form" class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-slate-300 mb-2">Product Name *</label>
+              <input type="text" id="product-name" placeholder="e.g. Iced Coffee" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-300 mb-2">Category *</label>
+              <div id="category-selector" class="flex gap-2 flex-wrap mb-2">
+                <!-- Categories will be dynamically inserted here -->
+              </div>
+              <button type="button" onclick="openAddCategoryModal()" class="text-emerald-400 hover:text-emerald-300 text-sm font-semibold flex items-center gap-1 transition"><i class="fas fa-plus"></i> Add New Category</button>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-300 mb-2">Price (RM) *</label>
+              <input type="number" id="product-price" step="0.01" placeholder="5.50" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+            </div>
+
+            <div class="flex items-end gap-4">
+              <div class="flex-1">
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Promo Price (RM)</label>
+                <input type="number" id="product-promo-price" step="0.01" placeholder="4.50" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition">
+              </div>
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer mb-0">
+                <input type="checkbox" id="enable-promo" class="w-4 h-4">
+                <span class="text-sm">Enable</span>
+              </label>
+            </div>
+
+            <button type="submit" class="md:col-span-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Product</button>
+          </form>
+        </div>
+
+        <!-- Products List -->
+        <div class="glass-effect rounded-2xl p-6">
+          <h2 class="text-2xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent">All Products</h2>
+          <div id="products-list" class="grid md:grid-cols-2 gap-4">
+            <!-- Products will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <!-- Category Management -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+          <h2 class="text-2xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Manage Categories</h2>
+          
+          <!-- Add Category Form -->
+          <form id="category-form" class="grid md:grid-cols-2 gap-4 mb-8 pb-8 border-b border-slate-600">
+            <div>
+              <label class="block text-sm font-semibold text-slate-300 mb-2">Category Name *</label>
+              <input type="text" id="category-name" placeholder="e.g. Drinks, Snacks" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+            </div>
+
+            <button type="submit" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2 md:col-span-1 md:self-end"><i class="fas fa-plus"></i> Add Category</button>
+          </form>
+
+          <!-- Categories List -->
+          <h3 class="text-lg font-semibold text-slate-300 mb-4">Your Categories</h3>
+          <div id="categories-list" class="grid md:grid-cols-2 gap-3">
+            <p class="text-slate-400">Loading categories...</p>
+          </div>
+        </div>
+
+        <!-- Special Marks Management -->
+        <div class="glass-effect rounded-2xl p-6">
+          <h2 class="text-2xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-rose-400 bg-clip-text text-transparent">Special Marks</h2>
+          
+          <!-- Add Mark Form - Simplified -->
+          <form id="mark-form" class="mb-8 pb-8 border-b border-slate-600">
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Mark Name *</label>
+                <input type="text" id="mark-name" placeholder="e.g. Less Spicy, Extra Sweet, No Ice" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition" required>
+              </div>
+              <button type="submit" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 self-end whitespace-nowrap"><i class="fas fa-plus"></i> Add</button>
+            </div>
+          </form>
+
+          <!-- Marks List -->
+          <h3 class="text-lg font-semibold text-slate-300 mb-4">Your Marks</h3>
+          <div id="marks-list" class="grid md:grid-cols-2 gap-3">
+            <p class="text-slate-400">No marks yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER HISTORY TAB -->
+      <div id="history-tab" class="tab-content hidden">
+        <!-- Pending Orders -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-4 text-amber-400">Pending Orders</h2>
+          <div id="pending-orders" class="grid gap-4 mb-8">
+            <p class="text-slate-400">No pending orders</p>
+          </div>
+        </div>
+
+        <!-- Completed Orders -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-4 text-emerald-400">Completed Orders</h2>
+          <div id="completed-orders" class="grid gap-4 mb-8">
+            <p class="text-slate-400">No completed orders</p>
+          </div>
+        </div>
+
+        <!-- Cancelled Orders -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 text-red-400">Cancelled Orders</h2>
+          <div id="cancelled-orders" class="grid gap-4">
+            <p class="text-slate-400">No cancelled orders</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Category Modal -->
+    <div id="add-category-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="glass-effect rounded-2xl p-8 w-full max-w-md border border-slate-700/50 shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-emerald-400">Add New Category</h2>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Category Name *</label>
+          <input type="text" id="modal-category-name" placeholder="e.g. Desserts, Beverages" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" required>
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="addCategoryFromModal()" class="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add</button>
+          <button onclick="closeAddCategoryModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 rounded-lg transition">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Method Modal -->
+    <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="glass-effect rounded-2xl p-8 w-full max-w-md border border-slate-700/50 shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-emerald-400">Choose Payment Method</h2>
+        
+        <div class="space-y-3 mb-6">
+          <button onclick="selectPaymentMethod('cash')" class="w-full bg-slate-700/50 hover:bg-slate-600/50 border-2 border-slate-600 hover:border-emerald-500 text-slate-200 hover:text-white py-4 rounded-lg font-semibold transition flex items-center justify-center gap-3">
+            <i class="fas fa-money-bill" style="font-size: 24px;"></i> Cash
+          </button>
+          <button onclick="selectPaymentMethod('qr')" class="w-full bg-slate-700/50 hover:bg-slate-600/50 border-2 border-slate-600 hover:border-emerald-500 text-slate-200 hover:text-white py-4 rounded-lg font-semibold transition flex items-center justify-center gap-3">
+            <i class="fas fa-qrcode" style="font-size: 24px;"></i> QR Code
+          </button>
+        </div>
+
+        <button onclick="closePaymentModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-lg font-semibold transition">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Marks Selection Modal -->
+    <div id="marks-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="glass-effect rounded-2xl p-8 w-full max-w-md border border-slate-700/50 shadow-2xl max-h-96 overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-6 text-purple-400">Add Special Marks</h2>
+        
+        <div id="marks-selection" class="space-y-2 mb-6">
+          <!-- Marks will be dynamically inserted here -->
+        </div>
+
+        <button onclick="confirmMarks()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 mb-2"><i class="fas fa-check"></i> Confirm</button>
+        <button onclick="closeMarksModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-lg font-semibold transition">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

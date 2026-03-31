@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "name": "Drinks",
+    "icon": "fa-glass",
+    "color": "#3b82f6",
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "1774955285081",
+    "name": "Burger",
+    "icon": "fa-folder",
+    "color": "#8b5cf6",
+    "createdAt": "2026-03-31T11:08:05.081Z"
+  }
+]

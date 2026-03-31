@@ -1,0 +1,82 @@
+[
+  {
+    "id": "1",
+    "name": "Iced Coffee",
+    "category": "Drinks",
+    "price": 4.5,
+    "promoPrice": null,
+    "promoEnabled": false,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "Iced Tea",
+    "category": "Drinks",
+    "price": 3.5,
+    "promoPrice": 3,
+    "promoEnabled": true,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "Burger",
+    "category": "Western",
+    "price": 8.5,
+    "promoPrice": null,
+    "promoEnabled": false,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "4",
+    "name": "Fried Chicken",
+    "category": "Western",
+    "price": 7,
+    "promoPrice": 6.5,
+    "promoEnabled": true,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "name": "Nasi Goreng Kampung",
+    "category": "Hot Meals",
+    "price": 6.5,
+    "promoPrice": null,
+    "promoEnabled": false,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "name": "Rendang Ayam",
+    "category": "Hot Meals",
+    "price": 7.5,
+    "promoPrice": 7,
+    "promoEnabled": true,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T00:00:00.000Z"
+  },
+  {
+    "id": "1774947777224",
+    "name": "Nasi Goreng Tomyam",
+    "category": "Hot Meals",
+    "price": 7,
+    "promoPrice": 5.5,
+    "promoEnabled": true,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T09:02:57.224Z"
+  },
+  {
+    "id": "1774950520160",
+    "name": "Burger Ayam",
+    "category": "Western",
+    "price": 5,
+    "promoPrice": null,
+    "promoEnabled": false,
+    "imageUrl": null,
+    "createdAt": "2026-03-31T09:48:40.160Z"
+  }
+]

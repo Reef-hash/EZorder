@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Manrope', sans-serif;
+}
+
+body {
+  @apply bg-gray-950 text-gray-100 min-h-screen;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a0f2e 50%, #0f1f2e 100%);
+}
+
+/* Neon glow cards */
+.glass-effect {
+  @apply rounded-xl border backdrop-blur-md transition-all duration-300;
+  background: rgba(15, 15, 30, 0.6);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), inset 0 0 20px rgba(0, 255, 255, 0.05);
+}
+
+.glass-effect:hover {
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.08);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #00ffff, #ff00ff, #00ff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+/* Neon buttons */
+.btn-primary {
+  @apply font-semibold py-3 px-4 rounded-lg transition transform;
+  background: linear-gradient(135deg, #00ffff 0%, #00ff88 100%);
+  color: #000;
+  border: 2px solid rgba(0, 255, 200, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 200, 0.5), inset 0 0 15px rgba(0, 255, 200, 0.1);
+  text-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 255, 200, 0.8), inset 0 0 25px rgba(0, 255, 200, 0.2),0 0 50px rgba(0, 255, 200, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  @apply font-semibold py-3 px-4 rounded-lg transition transform;
+  background: rgba(15, 15, 30, 0.6);
+  color: #ff00ff;
+  border: 2px solid rgba(255, 0, 255, 0.5);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 0, 255, 0.8);
+  box-shadow: 0 0 25px rgba(255, 0, 255, 0.6), 0 0 50px rgba(255, 0, 255, 0.2);
+  background: rgba(255, 0, 255, 0.1);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.input-base {
+  @apply w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none transition;
+  background: rgba(15, 15, 30, 0.8);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.05);
+}
+
+.input-base:focus {
+  border-color: rgba(0, 255, 255, 0.8);
+  box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.1), 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* Neon card styles */
+.neon-card {
+  @apply rounded-xl p-4 transition-all duration-300;
+  background: rgba(15, 15, 30, 0.6);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+}
+
+.neon-card:hover {
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+}
+
+.neon-border {
+  border: 2px solid rgba(0, 255, 200, 0.5) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.3) !important;
+}
+
+.neon-border-pink {
+  border: 2px solid rgba(255, 0, 255, 0.5) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3) !important;
+}
+
+.neon-border-lime {
+  border: 2px solid rgba(0, 255, 136, 0.5) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3) !important;
+}
+
+/* Pulsing glow effect */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 200, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 200, 0.8), 0 0 60px rgba(0, 255, 200, 0.3); }
+}
+
+.pulse-glow {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+/* Gradient background animation */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: gradientShift 20s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { filter: hue-rotate(0deg); opacity: 1; }
+  50% { filter: hue-rotate(20deg); opacity: 1.2; }
+}

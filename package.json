@@ -1,0 +1,23 @@
+{
+  "name": "ezorder",
+  "version": "1.0.0",
+  "description": "EZOrder - Professional Smart Order Management System for Small Businesses",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "keywords": [
+    "order",
+    "management",
+    "pos",
+    "saas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}

@@ -1,0 +1,248 @@
+[
+  {
+    "id": "1774947814959",
+    "customerName": "alisha",
+    "items": [
+      {
+        "id": "5",
+        "name": "Nasi Goreng Kampung",
+        "price": 6.5,
+        "quantity": 2
+      },
+      {
+        "id": "4",
+        "name": "Fried Chicken",
+        "price": 6.5,
+        "quantity": 2
+      }
+    ],
+    "total": 26,
+    "status": "completed",
+    "whatsappMessage": "Hi alisha,\n\nYour order:\n• Nasi Goreng Kampung x2\n• Fried Chicken x2\n\nTotal: RM26.00\n\nThank you!",
+    "createdAt": "2026-03-31T09:03:34.959Z",
+    "updatedAt": "2026-03-31T09:03:41.854Z"
+  },
+  {
+    "id": "1774950549803",
+    "customerName": "dhiya'",
+    "items": [
+      {
+        "id": "4",
+        "name": "Fried Chicken",
+        "price": 6.5,
+        "quantity": 2
+      },
+      {
+        "id": "1774950520160",
+        "name": "Burger Ayam",
+        "price": 5,
+        "quantity": 1
+      },
+      {
+        "id": "1",
+        "name": "Iced Coffee",
+        "price": 4.5,
+        "quantity": 1
+      },
+      {
+        "id": "2",
+        "name": "Iced Tea",
+        "price": 3,
+        "quantity": 1
+      }
+    ],
+    "total": 25.5,
+    "status": "completed",
+    "whatsappMessage": "Hi dhiya',\n\nYour order:\n• Fried Chicken x2\n• Burger Ayam x1\n• Iced Coffee x1\n• Iced Tea x1\n\nTotal: RM25.50\n\nThank you!",
+    "createdAt": "2026-03-31T09:49:09.803Z",
+    "updatedAt": "2026-03-31T09:49:32.265Z"
+  },
+  {
+    "id": "1774950961897",
+    "customerName": "Abu",
+    "items": [
+      {
+        "id": "5",
+        "name": "Nasi Goreng Kampung",
+        "price": 6.5,
+        "quantity": 3
+      },
+      {
+        "id": "1774947777224",
+        "name": "Nasi Goreng Tomyam",
+        "price": 5.5,
+        "quantity": 1
+      },
+      {
+        "id": "3",
+        "name": "Burger",
+        "price": 8.5,
+        "quantity": 2
+      },
+      {
+        "id": "1",
+        "name": "Iced Coffee",
+        "price": 4.5,
+        "quantity": 1
+      }
+    ],
+    "total": 46.5,
+    "status": "completed",
+    "whatsappMessage": "Hi Abu,\n\nYour order:\n• Nasi Goreng Kampung x3\n• Nasi Goreng Tomyam x1\n• Burger x2\n• Iced Coffee x1\n\nTotal: RM46.50\n\nThank you!",
+    "createdAt": "2026-03-31T09:56:01.897Z",
+    "updatedAt": "2026-03-31T09:56:23.738Z"
+  },
+  {
+    "id": "1774951512642",
+    "customerName": "egret y",
+    "items": [
+      {
+        "id": "2",
+        "name": "Iced Tea",
+        "price": 3,
+        "quantity": 1
+      },
+      {
+        "id": "6",
+        "name": "Rendang Ayam",
+        "price": 7,
+        "quantity": 1
+      },
+      {
+        "id": "1774947777224",
+        "name": "Nasi Goreng Tomyam",
+        "price": 5.5,
+        "quantity": 1
+      }
+    ],
+    "total": 15.5,
+    "status": "completed",
+    "whatsappMessage": "Hi egret y,\n\nYour order:\n• Iced Tea x1\n• Rendang Ayam x1\n• Nasi Goreng Tomyam x1\n\nTotal: RM15.50\n\nThank you!",
+    "createdAt": "2026-03-31T10:05:12.642Z",
+    "updatedAt": "2026-03-31T10:07:39.022Z"
+  },
+  {
+    "id": "1774952297251",
+    "customerName": "mat",
+    "items": [
+      {
+        "id": "1",
+        "name": "Iced Coffee",
+        "price": 4.5,
+        "quantity": 2
+      },
+      {
+        "id": "2",
+        "name": "Iced Tea",
+        "price": 3,
+        "quantity": 2
+      },
+      {
+        "id": "4",
+        "name": "Fried Chicken",
+        "price": 6.5,
+        "quantity": 3
+      },
+      {
+        "id": "1774947777224",
+        "name": "Nasi Goreng Tomyam",
+        "price": 5.5,
+        "quantity": 1
+      },
+      {
+        "id": "5",
+        "name": "Nasi Goreng Kampung",
+        "price": 6.5,
+        "quantity": 1
+      },
+      {
+        "id": "3",
+        "name": "Burger",
+        "price": 8.5,
+        "quantity": 2
+      }
+    ],
+    "total": 63.5,
+    "status": "completed",
+    "whatsappMessage": "Hi mat,\n\nYour order:\n• Iced Coffee x2\n• Iced Tea x2\n• Fried Chicken x3\n• Nasi Goreng Tomyam x1\n• Nasi Goreng Kampung x1\n• Burger x2\n\nTotal: RM63.50\n\nThank you!",
+    "createdAt": "2026-03-31T10:18:17.251Z",
+    "paymentMethod": "cash",
+    "updatedAt": "2026-03-31T10:54:30.730Z"
+  },
+  {
+    "id": "1774954744447",
+    "customerName": "dd",
+    "items": [
+      {
+        "id": "1",
+        "name": "Iced Coffee",
+        "price": 4.5,
+        "quantity": 1
+      },
+      {
+        "id": "6",
+        "name": "Rendang Ayam",
+        "price": 7,
+        "quantity": 1
+      },
+      {
+        "id": "3",
+        "name": "Burger",
+        "price": 8.5,
+        "quantity": 1
+      },
+      {
+        "id": "1774950520160",
+        "name": "Burger Ayam",
+        "price": 5,
+        "quantity": 1
+      },
+      {
+        "id": "4",
+        "name": "Fried Chicken",
+        "price": 6.5,
+        "quantity": 2
+      }
+    ],
+    "total": 38,
+    "marks": [
+      "1"
+    ],
+    "paymentMethod": "cash",
+    "status": "completed",
+    "whatsappMessage": "Hi dd,\n\nYour order:\n• Iced Coffee x1\n• Rendang Ayam x1\n• Burger x1\n• Burger Ayam x1\n• Fried Chicken x2\n\nTotal: RM38.00\n\nThank you!",
+    "createdAt": "2026-03-31T10:59:04.447Z",
+    "updatedAt": "2026-03-31T11:03:06.713Z"
+  },
+  {
+    "id": "1774954926090",
+    "customerName": "muaz",
+    "items": [
+      {
+        "id": "1774950520160",
+        "name": "Burger Ayam",
+        "price": 5,
+        "quantity": 3
+      },
+      {
+        "id": "2",
+        "name": "Iced Tea",
+        "price": 3,
+        "quantity": 1
+      },
+      {
+        "id": "1",
+        "name": "Iced Coffee",
+        "price": 4.5,
+        "quantity": 1
+      }
+    ],
+    "total": 22.5,
+    "marks": [],
+    "paymentMethod": "qr",
+    "status": "completed",
+    "whatsappMessage": "Hi muaz,\n\nYour order:\n• Burger Ayam x3\n• Iced Tea x1\n• Iced Coffee x1\n\nTotal: RM22.50\n\nThank you!",
+    "createdAt": "2026-03-31T11:02:06.090Z",
+    "updatedAt": "2026-03-31T11:02:55.525Z"
+  }
+]
