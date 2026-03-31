@@ -78,7 +78,6 @@ const loadAllData = async () => {
         toast.error('Some data failed to load')
       } else {
         console.log('✅ All data loaded successfully:', results)
-        toast.success('Dashboard loaded!')
       }
       return results
     } catch (error) {

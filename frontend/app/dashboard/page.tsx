@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [authChecked, setAuthChecked] = useState(false)
   const initAuthRef = useRef(false)
+  const dataLoadedRef = useRef(false)
 
   useEffect(() => {
     // Only call initAuth once on mount
@@ -32,9 +33,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!authChecked) return
+    if (dataLoadedRef.current) return
     
     console.log('Auth checked, user state:', user)
     if (user) {
+      dataLoadedRef.current = true
       console.log('User logged in, loading data...')
       loadAllData().finally(() => {
         console.log('Data loading finished')
