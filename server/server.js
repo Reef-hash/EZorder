@@ -43,7 +43,21 @@ app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/marks', authMiddleware, markRoutes);
 app.use('/api/categories', authMiddleware, categoryRoutes);
 
+// One-time admin setup via env var (safe: only runs on server startup)
+async function setupAdminIfNeeded() {
+  const email = process.env.SETUP_ADMIN_EMAIL;
+  if (!email) return;
+  try {
+    const { default: User } = await import('./models/userModel.js');
+    const result = await User.updateOne({ email }, { $set: { role: 'admin' } });
+    console.log(`✓ Admin setup: modified ${result.modifiedCount} user(s) for ${email}`);
+  } catch (e) {
+    console.error('✗ Admin setup failed:', e.message);
+  }
+}
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`✓ EZOrder running on http://localhost:${PORT}`);
+  await setupAdminIfNeeded();
 });
