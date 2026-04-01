@@ -39,7 +39,7 @@ export default function CurrentOrderBuilder({
   }
 
   return (
-    <div className="glass-effect rounded-2xl p-6 sticky top-[130px]">
+    <div className="glass-effect rounded-2xl p-4 md:p-6 lg:sticky lg:top-[130px]">
       <h2 className="text-xl font-bold gradient-text mb-4">Order Builder</h2>
 
       {/* Customer Name */}

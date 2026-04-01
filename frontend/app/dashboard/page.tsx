@@ -66,12 +66,12 @@ export default function DashboardPage() {
       <Navbar />
 
       {/* Tab Navigation */}
-      <div className="sticky top-16 z-40 bg-slate-900/50 backdrop-blur border-b border-slate-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-2 overflow-x-auto">
+      <div className="sticky top-14 md:top-16 z-40 bg-slate-900/50 backdrop-blur border-b border-slate-700/50">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto scrollbar-none">
             <button
               onClick={() => setCurrentTab('order')}
-              className={`flex items-center gap-2 px-6 py-4 font-semibold whitespace-nowrap transition-all border-b-2 ${
+              className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold whitespace-nowrap transition-all border-b-2 text-sm md:text-base ${
                 currentTab === 'order'
                   ? 'text-emerald-400 border-emerald-500'
                   : 'text-slate-400 border-transparent hover:text-slate-300'
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setCurrentTab('manage')}
-              className={`flex items-center gap-2 px-6 py-4 font-semibold whitespace-nowrap transition-all border-b-2 ${
+              className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold whitespace-nowrap transition-all border-b-2 text-sm md:text-base ${
                 currentTab === 'manage'
                   ? 'text-emerald-400 border-emerald-500'
                   : 'text-slate-400 border-transparent hover:text-slate-300'
@@ -93,7 +93,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setCurrentTab('history')}
-              className={`flex items-center gap-2 px-6 py-4 font-semibold whitespace-nowrap transition-all border-b-2 ${
+              className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold whitespace-nowrap transition-all border-b-2 text-sm md:text-base ${
                 currentTab === 'history'
                   ? 'text-emerald-400 border-emerald-500'
                   : 'text-slate-400 border-transparent hover:text-slate-300'
@@ -107,7 +107,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Tab Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 md:py-8">
         {currentTab === 'order' && <OrderTab />}
         {currentTab === 'manage' && <ManageTab />}
         {currentTab === 'history' && <HistoryTab />}

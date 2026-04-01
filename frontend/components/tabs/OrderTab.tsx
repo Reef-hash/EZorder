@@ -48,7 +48,7 @@ export default function OrderTab() {
   }
 
   return (
-    <div className="grid lg:grid-cols-4 gap-8">
+    <div className="flex flex-col lg:grid lg:grid-cols-4 gap-4 md:gap-8">
       {/* Products List */}
       <div className="lg:col-span-3">
         <div className="mb-6">
