@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import PWAInstallBanner from '@/components/PWAInstallBanner'
 
 export const metadata: Metadata = {
   title: 'EZOrder - Smart Order Management',
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster position="top-center" toastOptions={{ duration: 2000 }} />
+        <PWAInstallBanner />
         <script dangerouslySetInnerHTML={{
           __html: `
             if ('serviceWorker' in navigator) {

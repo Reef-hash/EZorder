@@ -12,6 +12,23 @@
   font-family: 'Manrope', sans-serif;
 }
 
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* stylelint-disable */
 body {
   @apply bg-gray-950 text-gray-100 min-h-screen;
