@@ -20,6 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           name: product.name,
           price: displayPrice,
           quantity: 1,
+          marks: [],
         })
       }
       className="glass-effect rounded-lg p-4 cursor-pointer hover:border-emerald-500/50 transition transform hover:-translate-y-1 border border-slate-600 hover:shadow-lg hover:shadow-emerald-500/20"

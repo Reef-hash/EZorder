@@ -115,7 +115,7 @@ export default function CurrentOrderBuilder({
                 </button>
 
                 {expandedItem === item.id && (
-                  <ItemMarksSelector itemId={item.id} itemName={item.name} />
+                  <ItemMarksSelector itemId={item.id} />
                 )}
               </div>
             ))

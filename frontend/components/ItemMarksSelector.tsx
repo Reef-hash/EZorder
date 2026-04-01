@@ -4,12 +4,10 @@ import { useAppStore } from '@/lib/store'
 
 interface ItemMarksSelectorProps {
   itemId: string
-  itemName: string
 }
 
 export default function ItemMarksSelector({
   itemId,
-  itemName,
 }: ItemMarksSelectorProps) {
   const { marks, currentOrder, toggleItemMark } = useAppStore()
   const item = currentOrder.items.find((i: any) => i.id === itemId)
