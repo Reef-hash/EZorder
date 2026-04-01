@@ -91,7 +91,7 @@ export default function PWAInstallBanner() {
           </div>
           <div className="flex-1">
             <p className="font-bold text-white text-sm">Install EZOrder</p>
-            <p className="text-slate-400 text-xs">Guna macam app — pantas & offline</p>
+            <p className="text-slate-400 text-xs">Use it like a native app — fast & offline</p>
           </div>
           <button onClick={handleDismiss} className="text-slate-500 hover:text-slate-300 p-1">
             <i className="fas fa-times"></i>
