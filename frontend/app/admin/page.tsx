@@ -112,7 +112,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-emerald-600 to-purple-600 shadow-2xl">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-500 to-orange-600 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 md:h-16">
             <div className="flex items-center gap-2">

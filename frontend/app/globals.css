@@ -30,6 +30,209 @@
 }
 
 /* stylelint-disable */
+
+/* ─── DARK MODE (default) ─── */
+body {
+  @apply bg-gray-950 text-gray-100 min-h-screen;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1500 50%, #0f0f1e 100%);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.07) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.07) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: gradientShift 20s ease infinite;
+}
+
+/* Gold glow cards */
+.glass-effect {
+  @apply rounded-xl border backdrop-blur-md transition-all duration-300;
+  background: rgba(15, 12, 0, 0.6);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.08), inset 0 0 20px rgba(251, 191, 36, 0.04);
+}
+
+.glass-effect:hover {
+  border-color: rgba(251, 191, 36, 0.55);
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.15), inset 0 0 30px rgba(251, 191, 36, 0.06);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #fbbf24, #f97316, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* Gold buttons */
+.btn-primary {
+  @apply font-semibold py-3 px-4 rounded-lg transition transform;
+  background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+  color: #000;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.08);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.7), inset 0 0 25px rgba(251, 191, 36, 0.15), 0 0 50px rgba(251, 191, 36, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  @apply font-semibold py-3 px-4 rounded-lg transition transform;
+  background: rgba(15, 12, 0, 0.6);
+  color: #f97316;
+  border: 2px solid rgba(249, 115, 22, 0.5);
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  border-color: rgba(249, 115, 22, 0.8);
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.5), 0 0 50px rgba(249, 115, 22, 0.2);
+  background: rgba(249, 115, 22, 0.1);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.input-base {
+  @apply w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none transition;
+  background: rgba(15, 12, 0, 0.8);
+  border: 2px solid rgba(251, 191, 36, 0.25);
+  box-shadow: inset 0 0 10px rgba(251, 191, 36, 0.04);
+}
+
+.input-base:focus {
+  border-color: rgba(251, 191, 36, 0.7);
+  box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.08), 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+/* Gold card styles */
+.neon-card {
+  @apply rounded-xl p-4 transition-all duration-300;
+  background: rgba(15, 12, 0, 0.6);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.08);
+}
+
+.neon-card:hover {
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.15);
+}
+
+.neon-border {
+  border: 2px solid rgba(251, 191, 36, 0.5) !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.25) !important;
+}
+
+.neon-border-pink {
+  border: 2px solid rgba(249, 115, 22, 0.5) !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.25) !important;
+}
+
+.neon-border-lime {
+  border: 2px solid rgba(245, 158, 11, 0.5) !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.25) !important;
+}
+
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.7), 0 0 60px rgba(251, 191, 36, 0.25); }
+}
+
+.pulse-glow {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { filter: hue-rotate(0deg); opacity: 1; }
+  50% { filter: hue-rotate(15deg); opacity: 1; }
+}
+
+/* ─── LIGHT MODE ─── */
+html:not(.dark) body {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 50%, #fff7ed 100%) !important;
+  color: #1c1917;
+}
+
+html:not(.dark) body::before {
+  background: radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.18) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.14) 0%, transparent 50%) !important;
+}
+
+html:not(.dark) .glass-effect {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1) !important;
+}
+
+html:not(.dark) .glass-effect:hover {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 4px 30px rgba(245, 158, 11, 0.18) !important;
+}
+
+html:not(.dark) .neon-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  box-shadow: 0 2px 15px rgba(245, 158, 11, 0.08) !important;
+}
+
+html:not(.dark) .input-base {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #1c1917 !important;
+  box-shadow: none !important;
+}
+
+html:not(.dark) .input-base:focus {
+  border-color: rgba(245, 158, 11, 0.75) !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2) !important;
+}
+
+html:not(.dark) .input-base::placeholder {
+  color: #a8a29e !important;
+}
+
+/* Text overrides for light mode */
+html:not(.dark) .text-white,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 { color: #1c1917 !important; }
+
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400 { color: #44403c !important; }
+
+html:not(.dark) .text-slate-500 { color: #78716c !important; }
+
+/* Background overrides */
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-800\/50,
+html:not(.dark) .bg-slate-800 { background-color: rgba(254, 243, 199, 0.6) !important; }
+
+html:not(.dark) .bg-slate-700\/20,
+html:not(.dark) .bg-slate-700\/30 { background-color: rgba(245, 158, 11, 0.08) !important; }
+
+html:not(.dark) .border-slate-700\/50,
+html:not(.dark) .border-slate-700 { border-color: rgba(245, 158, 11, 0.25) !important; }
+
+html:not(.dark) .divide-slate-700\/30 > * + * { border-color: rgba(245, 158, 11, 0.15) !important; }
+
+/* stylelint-enable */
+
+/* stylelint-disable */
 body {
   @apply bg-gray-950 text-gray-100 min-h-screen;
   background: linear-gradient(135deg, #0f0f1e 0%, #1a0f2e 50%, #0f1f2e 100%);
