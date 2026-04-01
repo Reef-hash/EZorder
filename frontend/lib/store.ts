@@ -60,6 +60,7 @@ interface AppStore {
   currentOrder: {
     customerName: string
     items: OrderItem[]
+    marks: string[]
   }
   selectedCategory: string | null
   
@@ -78,8 +79,6 @@ interface AppStore {
   removeOrderItem: (productId: string) => void
   updateOrderItemQuantity: (productId: string, quantity: number) => void
   setOrderCustomerName: (name: string) => void
-  addOrderMark: (markId: string) => void
-  removeOrderMark: (markId: string) => void
   toggleItemMark: (itemId: string, markId: string) => void
   clearCurrentOrder: () => void
   
@@ -100,6 +99,7 @@ export const useAppStore = create<AppStore>((set) => ({
   currentOrder: {
     customerName: '',
     items: [],
+    marks: [],
   },
   selectedCategory: null,
 
@@ -178,9 +178,6 @@ export const useAppStore = create<AppStore>((set) => ({
       },
     })),
 
-  addOrderMark: () => {}, // Deprecated - marks now per-item
-  removeOrderMark: () => {}, // Deprecated - marks now per-item
-
   toggleItemMark: (itemId, markId) =>
     set((state) => ({
       currentOrder: {
@@ -203,6 +200,7 @@ export const useAppStore = create<AppStore>((set) => ({
       currentOrder: {
         customerName: '',
         items: [],
+        marks: [],
       },
       selectedCategory: null,
     }),
@@ -211,5 +209,5 @@ export const useAppStore = create<AppStore>((set) => ({
 
   setCategories: (categories) => set({ categories }),
 
-  selectCategory: (categoryId) => set({ selectedCategory: categoryId }),
+  selectCategory: (categoryId) => set({ selectedCategory: categoryId })
 }))

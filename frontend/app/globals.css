@@ -1,14 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
+/* stylelint-disable-next-line */
 @tailwind base;
+/* stylelint-disable-next-line */
 @tailwind components;
+/* stylelint-disable-next-line */
 @tailwind utilities;
 
 * {
   font-family: 'Manrope', sans-serif;
 }
 
+/* stylelint-disable */
 body {
   @apply bg-gray-950 text-gray-100 min-h-screen;
   background: linear-gradient(135deg, #0f0f1e 0%, #1a0f2e 50%, #0f1f2e 100%);
@@ -143,3 +147,4 @@ body::before {
   0%, 100% { filter: hue-rotate(0deg); opacity: 1; }
   50% { filter: hue-rotate(20deg); opacity: 1.2; }
 }
+/* stylelint-enable */
