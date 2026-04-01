@@ -23,6 +23,15 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 md:gap-4">
             <span className="hidden sm:block text-emerald-50 text-sm">Welcome, {user?.businessName}</span>
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => router.push('/admin')}
+                className="bg-purple-500/30 hover:bg-purple-500/50 text-white px-3 py-2 md:px-4 rounded-lg font-semibold transition flex items-center gap-2 text-sm border border-purple-400/40"
+              >
+                <i className="fas fa-shield-alt"></i>
+                <span className="hidden sm:inline">Admin</span>
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="bg-white/20 hover:bg-white/30 text-white px-3 py-2 md:px-4 rounded-lg font-semibold transition flex items-center gap-2 text-sm"
