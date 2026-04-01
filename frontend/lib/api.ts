@@ -85,4 +85,13 @@ export const authAPI = {
   getMe: () => api.get('/api/auth/me'),
 }
 
+// Admin
+export const adminAPI = {
+  getStats: () => api.get('/api/admin/stats'),
+  getUsers: (params?: { search?: string; plan?: string }) =>
+    api.get('/api/admin/users', { params }),
+  updatePlan: (id: string, action: 'activate' | 'extend_trial' | 'suspend' | 'expire') =>
+    api.patch(`/api/admin/users/${id}/plan`, { action }),
+}
+
 export default api

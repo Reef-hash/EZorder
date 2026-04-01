@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   subscriptionExpiry: { type: Date, default: null },
   resetToken: { type: String, default: null },
   resetTokenExpiry: { type: Date, default: null },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
 }, { timestamps: true });
 
 // Hash password before save

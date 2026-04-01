@@ -51,6 +51,7 @@ export interface User {
   email: string
   businessName: string
   plan: string
+  role: 'user' | 'admin'
   trialExpiry?: string
   subscriptionExpiry?: string | null
 }

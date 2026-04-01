@@ -7,7 +7,9 @@ import productRoutes from './routes/productRoutes.js';
 import markRoutes from './routes/markRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
+import { adminMiddleware } from './middleware/adminMiddleware.js';
 
 dotenv.config();
 
@@ -31,6 +33,9 @@ app.use('/api/auth', authRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Admin routes (require JWT + admin role)
+app.use('/api/admin', authMiddleware, adminMiddleware, adminRoutes);
 
 // Protected API Routes (require JWT)
 app.use('/api/orders', authMiddleware, orderRoutes);
