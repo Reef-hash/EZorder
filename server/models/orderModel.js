@@ -1,108 +1,70 @@
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ordersFilePath = join(__dirname, '..', 'data', 'orders.json');
+const orderItemSchema = new mongoose.Schema({
+  id: String,
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  quantity: { type: Number, required: true, min: 1 },
+  marks: [String],
+}, { _id: false });
 
-/**
- * Read all orders from JSON file
- */
-async function readOrders() {
-  try {
-    const fileContent = await fs.readFile(ordersFilePath, 'utf-8');
-    const parsedOrders = JSON.parse(fileContent);
-    return Array.isArray(parsedOrders) ? parsedOrders : [];
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
+const orderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  customerName: { type: String, required: true, trim: true },
+  items: [orderItemSchema],
+  total: { type: Number, required: true, min: 0 },
+  marks: [String],
+  paymentMethod: { type: String, enum: ['cash', 'qr', null], default: null },
+  status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
+  whatsappMessage: { type: String },
+}, { timestamps: true });
+
+const Order = mongoose.model('Order', orderSchema);
+
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject();
+  obj.id = obj._id.toString();
+  delete obj._id;
+  delete obj.__v;
+  return obj;
 }
 
-/**
- * Write orders back to JSON file
- */
-async function writeOrders(orders) {
-  await fs.writeFile(ordersFilePath, JSON.stringify(orders, null, 2), 'utf-8');
-}
-
-/**
- * Generate WhatsApp message from order
- */
 function generateWhatsAppMessage(customerName, items, total) {
-  const itemsList = items
-    .map((item) => `• ${item.name} x${item.quantity}`)
-    .join('\n');
-
+  const itemsList = items.map((item) => `• ${item.name} x${item.quantity}`).join('\n');
   return `Hi ${customerName},\n\nYour order:\n${itemsList}\n\nTotal: RM${total.toFixed(2)}\n\nThank you!`;
 }
 
-/**
- * Get all orders
- */
-async function getAllOrders() {
-  return readOrders();
+async function getAllOrders(userId) {
+  const docs = await Order.find({ userId }).sort({ createdAt: -1 });
+  return docs.map(toPlain);
 }
 
-/**
- * Create a new order
- */
-async function addOrder(orderData) {
-  const orders = await readOrders();
-
-  const newOrder = {
-    id: Date.now().toString(),
+async function addOrder(orderData, userId) {
+  const doc = await Order.create({
+    userId,
     customerName: orderData.customerName,
     items: orderData.items,
     total: orderData.total,
     marks: orderData.marks || [],
     paymentMethod: orderData.paymentMethod || null,
     status: 'pending',
-    whatsappMessage: generateWhatsAppMessage(
-      orderData.customerName,
-      orderData.items,
-      orderData.total
-    ),
-    createdAt: new Date().toISOString(),
-  };
-
-  orders.push(newOrder);
-  await writeOrders(orders);
-
-  return newOrder;
+    whatsappMessage: generateWhatsAppMessage(orderData.customerName, orderData.items, orderData.total),
+  });
+  return toPlain(doc);
 }
 
-/**
- * Update order (status, payment method, marks, etc.)
- */
-async function updateOrder(orderId, updateData) {
-  const orders = await readOrders();
-  const orderIndex = orders.findIndex((order) => order.id === orderId);
-
-  if (orderIndex === -1) {
-    return null;
-  }
-
-  orders[orderIndex] = {
-    ...orders[orderIndex],
-    ...updateData,
-    id: orders[orderIndex].id,
-    createdAt: orders[orderIndex].createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  await writeOrders(orders);
-
-  return orders[orderIndex];
+async function updateOrder(orderId, updateData, userId) {
+  const doc = await Order.findOneAndUpdate(
+    { _id: orderId, userId },
+    { $set: updateData },
+    { new: true }
+  );
+  return toPlain(doc);
 }
 
-/**
- * Update order status to completed
- */
-async function updateOrderStatus(orderId, status) {
-  return updateOrder(orderId, { status });
+async function updateOrderStatus(orderId, status, userId) {
+  return updateOrder(orderId, { status }, userId);
 }
 
 export { getAllOrders, addOrder, updateOrderStatus, updateOrder, generateWhatsAppMessage };

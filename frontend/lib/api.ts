@@ -2,8 +2,6 @@ import axios from 'axios'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
-console.log('API_URL configured:', API_URL)
-
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -11,26 +9,33 @@ const api = axios.create({
   },
 })
 
-// Add request interceptor for logging
+// Attach JWT token to every request
 api.interceptors.request.use(
   (config) => {
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`)
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    }
     return config
   },
-  (error) => {
-    console.error('[API] Request error:', error)
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Add response interceptor for logging
+// Handle auth errors globally
 api.interceptors.response.use(
-  (response) => {
-    console.log(`[API] Response ${response.status}:`, response.data)
-    return response
-  },
+  (response) => response,
   (error) => {
-    console.error('[API] Response error:', error.message, error.response?.data || error.config?.url)
+    if (typeof window !== 'undefined') {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token')
+        window.location.href = '/'
+      } else if (error.response?.data?.code === 'SUBSCRIPTION_EXPIRED') {
+        localStorage.removeItem('token')
+        window.location.href = '/?expired=1'
+      }
+    }
     return Promise.reject(error)
   }
 )
@@ -65,6 +70,19 @@ export const ordersAPI = {
   create: (data: any) => api.post('/api/orders', data),
   update: (id: string, data: any) => api.patch(`/api/orders/${id}`, data),
   delete: (id: string) => api.delete(`/api/orders/${id}`),
+}
+
+// Auth
+export const authAPI = {
+  register: (data: { businessName: string; email: string; password: string }) =>
+    api.post('/api/auth/register', data),
+  login: (data: { email: string; password: string }) =>
+    api.post('/api/auth/login', data),
+  forgotPassword: (email: string) =>
+    api.post('/api/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post('/api/auth/reset-password', { token, password }),
+  getMe: () => api.get('/api/auth/me'),
 }
 
 export default api

@@ -2,16 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import dotenv from 'dotenv';
+import { connectDB } from './db.js';
 import orderRoutes from './routes/orderRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import markRoutes from './routes/markRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import { authMiddleware } from './middleware/authMiddleware.js';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors({
@@ -23,18 +32,20 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use(express.static(join(__dirname, '..', 'client')));
 
-// API Routes
-app.use('/api/orders', orderRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/marks', markRoutes);
-app.use('/api/categories', categoryRoutes);
+// Public routes (no auth needed)
+app.use('/api/auth', authRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Protected API Routes (require JWT)
+app.use('/api/orders', authMiddleware, orderRoutes);
+app.use('/api/products', authMiddleware, productRoutes);
+app.use('/api/marks', authMiddleware, markRoutes);
+app.use('/api/categories', authMiddleware, categoryRoutes);
 
 // Start server
 app.listen(PORT, () => {

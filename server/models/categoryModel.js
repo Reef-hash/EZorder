@@ -1,62 +1,42 @@
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const categoriesFilePath = join(__dirname, '..', 'data', 'categories.json');
+const categorySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  name: { type: String, required: true, trim: true },
+  icon: { type: String, default: 'fa-folder' },
+  color: { type: String, default: '#8b5cf6' },
+}, { timestamps: true });
 
-/**
- * Read all categories from JSON file
- */
-async function readCategories() {
-  try {
-    const fileContent = await fs.readFile(categoriesFilePath, 'utf-8');
-    const parsedCategories = JSON.parse(fileContent);
-    return Array.isArray(parsedCategories) ? parsedCategories : [];
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
+categorySchema.index({ userId: 1, name: 1 }, { unique: true });
+
+const Category = mongoose.model('Category', categorySchema);
+
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject();
+  obj.id = obj._id.toString();
+  delete obj._id;
+  delete obj.__v;
+  return obj;
 }
 
-/**
- * Write categories back to JSON file
- */
-async function writeCategories(categories) {
-  await fs.writeFile(categoriesFilePath, JSON.stringify(categories, null, 2), 'utf-8');
+async function getAllCategories(userId) {
+  const docs = await Category.find({ userId }).sort({ name: 1 });
+  return docs.map(toPlain);
 }
 
-/**
- * Get all categories
- */
-async function getAllCategories() {
-  const categories = await readCategories();
-  return categories.sort((a, b) => a.name.localeCompare(b.name));
-}
+async function addCategory(categoryData, userId) {
+  const existing = await Category.findOne({ userId, name: new RegExp(`^${categoryData.name}$`, 'i') });
+  if (existing) throw new Error('Category already exists');
 
-/**
- * Add a new category
- */
-async function addCategory(categoryData) {
-  const categories = await readCategories();
-
-  // Check if category already exists
-  if (categories.some(c => c.name.toLowerCase() === categoryData.name.toLowerCase())) {
-    throw new Error('Category already exists');
-  }
-
-  const newCategory = {
-    id: Date.now().toString(),
+  const doc = await Category.create({
+    userId,
     name: categoryData.name,
     icon: categoryData.icon || 'fa-folder',
     color: categoryData.color || '#8b5cf6',
-    createdAt: new Date().toISOString(),
-  };
+  });
 
-  categories.push(newCategory);
-  await writeCategories(categories);
+  return toPlain(doc);
 
   return newCategory;
 }
@@ -64,52 +44,23 @@ async function addCategory(categoryData) {
 /**
  * Get category by ID
  */
-async function getCategoryById(categoryId) {
-  const categories = await readCategories();
-  return categories.find((c) => c.id === categoryId) || null;
+async function getCategoryById(categoryId, userId) {
+  const doc = await Category.findOne({ _id: categoryId, userId });
+  return toPlain(doc);
 }
 
-/**
- * Update a category
- */
-async function updateCategory(categoryId, categoryData) {
-  const categories = await readCategories();
-  const index = categories.findIndex((c) => c.id === categoryId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const updatedCategory = {
-    ...categories[index],
-    ...categoryData,
-    id: categories[index].id,
-    createdAt: categories[index].createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  categories[index] = updatedCategory;
-  await writeCategories(categories);
-
-  return updatedCategory;
+async function updateCategory(categoryId, categoryData, userId) {
+  const doc = await Category.findOneAndUpdate(
+    { _id: categoryId, userId },
+    { $set: categoryData },
+    { new: true }
+  );
+  return toPlain(doc);
 }
 
-/**
- * Delete a category
- */
-async function deleteCategory(categoryId) {
-  const categories = await readCategories();
-  const index = categories.findIndex((c) => c.id === categoryId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const deletedCategory = categories[index];
-  categories.splice(index, 1);
-  await writeCategories(categories);
-
-  return deletedCategory;
+async function deleteCategory(categoryId, userId) {
+  const doc = await Category.findOneAndDelete({ _id: categoryId, userId });
+  return toPlain(doc);
 }
 
 export {

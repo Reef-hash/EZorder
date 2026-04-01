@@ -6,7 +6,7 @@ import * as markModel from '../models/markModel.js';
  */
 async function getMarks(req, res) {
   try {
-    const marks = await markModel.getAllMarks();
+    const marks = await markModel.getAllMarks(req.user._id);
     res.json(marks);
   } catch (error) {
     console.error('Error fetching marks:', error);
@@ -34,7 +34,7 @@ async function createMark(req, res) {
       name: name.trim(),
       icon: icon?.trim() || 'fa-tag',
       color: color?.trim() || '#8b5cf6',
-    });
+    }, req.user._id);
 
     res.status(201).json(newMark);
   } catch (error) {
@@ -50,7 +50,7 @@ async function createMark(req, res) {
 async function getMark(req, res) {
   try {
     const { id } = req.params;
-    const mark = await markModel.getMarkById(id);
+    const mark = await markModel.getMarkById(id, req.user._id);
 
     if (!mark) {
       return res.status(404).json({ message: 'Mark not found.' });
@@ -78,7 +78,7 @@ async function updateMark(req, res) {
     if (icon) updateData.icon = icon.trim();
     if (color) updateData.color = color.trim();
 
-    const updatedMark = await markModel.updateMark(id, updateData);
+    const updatedMark = await markModel.updateMark(id, updateData, req.user._id);
 
     if (!updatedMark) {
       return res.status(404).json({ message: 'Mark not found.' });
@@ -98,7 +98,7 @@ async function updateMark(req, res) {
 async function deleteMark(req, res) {
   try {
     const { id } = req.params;
-    const deletedMark = await markModel.deleteMark(id);
+    const deletedMark = await markModel.deleteMark(id, req.user._id);
 
     if (!deletedMark) {
       return res.status(404).json({ message: 'Mark not found.' });

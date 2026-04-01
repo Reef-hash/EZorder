@@ -6,7 +6,7 @@ import * as categoryModel from '../models/categoryModel.js';
  */
 async function getCategories(req, res) {
   try {
-    const categories = await categoryModel.getAllCategories();
+    const categories = await categoryModel.getAllCategories(req.user._id);
     res.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -34,7 +34,7 @@ async function createCategory(req, res) {
       name: name.trim(),
       icon: icon?.trim() || 'fa-folder',
       color: color?.trim() || '#8b5cf6',
-    });
+    }, req.user._id);
 
     res.status(201).json(newCategory);
   } catch (error) {
@@ -53,7 +53,7 @@ async function createCategory(req, res) {
 async function getCategory(req, res) {
   try {
     const { id } = req.params;
-    const category = await categoryModel.getCategoryById(id);
+    const category = await categoryModel.getCategoryById(id, req.user._id);
 
     if (!category) {
       return res.status(404).json({ message: 'Category not found.' });
@@ -80,7 +80,7 @@ async function updateCategory(req, res) {
       name: name?.trim(),
       icon: icon?.trim(),
       color: color?.trim(),
-    });
+    }, req.user._id);
 
     if (!updatedCategory) {
       return res.status(404).json({ message: 'Category not found.' });
@@ -100,7 +100,7 @@ async function updateCategory(req, res) {
 async function deleteCategory(req, res) {
   try {
     const { id } = req.params;
-    const deletedCategory = await categoryModel.deleteCategory(id);
+    const deletedCategory = await categoryModel.deleteCategory(id, req.user._id);
 
     if (!deletedCategory) {
       return res.status(404).json({ message: 'Category not found.' });

@@ -22,7 +22,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <span className="hidden sm:block text-emerald-50 text-sm">Welcome, {user?.username}</span>
+            <span className="hidden sm:block text-emerald-50 text-sm">Welcome, {user?.businessName}</span>
             <button
               onClick={handleLogout}
               className="bg-white/20 hover:bg-white/30 text-white px-3 py-2 md:px-4 rounded-lg font-semibold transition flex items-center gap-2 text-sm"

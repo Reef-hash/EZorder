@@ -1,110 +1,55 @@
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const marksFilePath = join(__dirname, '..', 'data', 'marks.json');
+const markSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  name: { type: String, required: true, trim: true },
+  icon: { type: String, default: 'fa-tag' },
+  color: { type: String, default: '#8b5cf6' },
+}, { timestamps: true });
 
-/**
- * Read all marks from JSON file
- */
-async function readMarks() {
-  try {
-    const fileContent = await fs.readFile(marksFilePath, 'utf-8');
-    const parsedMarks = JSON.parse(fileContent);
-    return Array.isArray(parsedMarks) ? parsedMarks : [];
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
+const Mark = mongoose.model('Mark', markSchema);
+
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject();
+  obj.id = obj._id.toString();
+  delete obj._id;
+  delete obj.__v;
+  return obj;
 }
 
-/**
- * Write marks back to JSON file
- */
-async function writeMarks(marks) {
-  await fs.writeFile(marksFilePath, JSON.stringify(marks, null, 2), 'utf-8');
+async function getAllMarks(userId) {
+  const docs = await Mark.find({ userId });
+  return docs.map(toPlain);
 }
 
-/**
- * Get all marks
- */
-async function getAllMarks() {
-  const marks = await readMarks();
-  return marks;
-}
-
-/**
- * Create a new mark
- */
-async function addMark(markData) {
-  const marks = await readMarks();
-
-  const newMark = {
-    id: Date.now().toString(),
+async function addMark(markData, userId) {
+  const doc = await Mark.create({
+    userId,
     name: markData.name,
     icon: markData.icon || 'fa-tag',
     color: markData.color || '#8b5cf6',
-    createdAt: new Date().toISOString(),
-  };
-
-  marks.push(newMark);
-  await writeMarks(marks);
-
-  return newMark;
+  });
+  return toPlain(doc);
 }
 
-/**
- * Get mark by ID
- */
-async function getMarkById(markId) {
-  const marks = await readMarks();
-  return marks.find((m) => m.id === markId) || null;
+async function getMarkById(markId, userId) {
+  const doc = await Mark.findOne({ _id: markId, userId });
+  return toPlain(doc);
 }
 
-/**
- * Update a mark
- */
-async function updateMark(markId, markData) {
-  const marks = await readMarks();
-  const index = marks.findIndex((m) => m.id === markId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const updatedMark = {
-    ...marks[index],
-    ...markData,
-    id: marks[index].id,
-    createdAt: marks[index].createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  marks[index] = updatedMark;
-  await writeMarks(marks);
-
-  return updatedMark;
+async function updateMark(markId, markData, userId) {
+  const doc = await Mark.findOneAndUpdate(
+    { _id: markId, userId },
+    { $set: markData },
+    { new: true }
+  );
+  return toPlain(doc);
 }
 
-/**
- * Delete a mark
- */
-async function deleteMark(markId) {
-  const marks = await readMarks();
-  const index = marks.findIndex((m) => m.id === markId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const deletedMark = marks[index];
-  marks.splice(index, 1);
-  await writeMarks(marks);
-
-  return deletedMark;
+async function deleteMark(markId, userId) {
+  const doc = await Mark.findOneAndDelete({ _id: markId, userId });
+  return toPlain(doc);
 }
 
 export {

@@ -6,7 +6,7 @@ import * as orderModel from '../models/orderModel.js';
  */
 async function getOrders(req, res) {
   try {
-    const orders = await orderModel.getAllOrders();
+    const orders = await orderModel.getAllOrders(req.user._id);
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -51,7 +51,7 @@ async function createOrder(req, res) {
       total: parseFloat(total),
       marks: Array.isArray(marks) ? marks : [],
       paymentMethod: paymentMethod || null,
-    });
+    }, req.user._id);
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -87,7 +87,7 @@ async function updateOrder(req, res) {
     if (status) updateData.status = status;
     if (paymentMethod) updateData.paymentMethod = paymentMethod;
 
-    const updatedOrder = await orderModel.updateOrder(id, updateData);
+    const updatedOrder = await orderModel.updateOrder(id, updateData, req.user._id);
 
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Order not found.' });

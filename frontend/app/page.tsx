@@ -2,22 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const router = useRouter()
   const { user, login } = useAuth()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // If user is already logged in, redirect to dashboard
-    if (user) {
-      console.log('User already logged in, redirecting to dashboard')
-      router.push('/dashboard')
-    }
+    if (user) router.push('/dashboard')
   }, [user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,22 +22,11 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const success = login(username, password)
-      console.log('Login attempt result:', success)
-      if (success) {
-        toast.success('Login successful!')
-        // Wait a bit for state to update, then navigate
-        setTimeout(() => {
-          console.log('Navigating to dashboard...')
-          router.push('/dashboard')
-        }, 100)
-      } else {
-        toast.error('Invalid credentials')
-        setLoading(false)
-      }
-    } catch (error) {
-      console.error('Login error:', error)
-      toast.error('Login failed')
+      await login(email, password)
+      toast.success('Login successful!')
+      router.push('/dashboard')
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Invalid email or password')
       setLoading(false)
     }
   }
@@ -53,12 +39,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-2">Username</label>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="user"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               className="input-base"
               required
             />
@@ -76,14 +62,26 @@ export default function LoginPage() {
             />
           </div>
 
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
+              Forgot password?
+            </Link>
+          </div>
+
           <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
             <i className="fas fa-sign-in-alt"></i>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="text-center text-slate-400 text-sm mt-4">Demo: user / password</p>
+        <p className="text-center text-slate-400 text-sm mt-6">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
+            Start free trial
+          </Link>
+        </p>
       </div>
     </div>
   )
 }
+

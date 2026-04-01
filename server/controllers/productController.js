@@ -6,7 +6,7 @@ import * as productModel from '../models/productModel.js';
  */
 async function getProducts(req, res) {
   try {
-    const products = await productModel.getAllProducts();
+    const products = await productModel.getAllProducts(req.user._id);
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -20,7 +20,7 @@ async function getProducts(req, res) {
  */
 async function getProductsGrouped(req, res) {
   try {
-    const grouped = await productModel.getProductsByCategory();
+    const grouped = await productModel.getProductsByCategory(req.user._id);
     res.json(grouped);
   } catch (error) {
     console.error('Error fetching grouped products:', error);
@@ -63,7 +63,7 @@ async function createProduct(req, res) {
       promoPrice,
       promoEnabled,
       imageUrl,
-    });
+    }, req.user._id);
 
     res.status(201).json(newProduct);
   } catch (error) {
@@ -79,7 +79,7 @@ async function createProduct(req, res) {
 async function getProduct(req, res) {
   try {
     const { id } = req.params;
-    const product = await productModel.getProductById(id);
+    const product = await productModel.getProductById(id, req.user._id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
@@ -122,7 +122,7 @@ async function updateProduct(req, res) {
     if (promoPrice !== undefined) updateData.promoPrice = promoPrice;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
 
-    const updatedProduct = await productModel.updateProduct(id, updateData);
+    const updatedProduct = await productModel.updateProduct(id, updateData, req.user._id);
 
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found.' });
@@ -142,7 +142,7 @@ async function updateProduct(req, res) {
 async function deleteProduct(req, res) {
   try {
     const { id } = req.params;
-    const deletedProduct = await productModel.deleteProduct(id);
+    const deletedProduct = await productModel.deleteProduct(id, req.user._id);
 
     if (!deletedProduct) {
       return res.status(404).json({ message: 'Product not found.' });

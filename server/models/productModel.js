@@ -1,129 +1,71 @@
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const productsFilePath = join(__dirname, '..', 'data', 'products.json');
+const productSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  name: { type: String, required: true, trim: true },
+  category: { type: String, required: true, trim: true },
+  price: { type: Number, required: true, min: 0 },
+  promoPrice: { type: Number, default: null },
+  promoEnabled: { type: Boolean, default: false },
+  imageUrl: { type: String, default: null },
+}, { timestamps: true });
 
-/**
- * Read all products from JSON file
- */
-async function readProducts() {
-  try {
-    const fileContent = await fs.readFile(productsFilePath, 'utf-8');
-    const parsedProducts = JSON.parse(fileContent);
-    return Array.isArray(parsedProducts) ? parsedProducts : [];
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
+const Product = mongoose.model('Product', productSchema);
+
+function toPlain(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject();
+  obj.id = obj._id.toString();
+  delete obj._id;
+  delete obj.__v;
+  return obj;
 }
 
-/**
- * Write products back to JSON file
- */
-async function writeProducts(products) {
-  await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2), 'utf-8');
+async function getAllProducts(userId) {
+  const docs = await Product.find({ userId }).sort({ category: 1 });
+  return docs.map(toPlain);
 }
 
-/**
- * Get all products
- */
-async function getAllProducts() {
-  const products = await readProducts();
-  return products.sort((a, b) => a.category.localeCompare(b.category));
-}
-
-/**
- * Create a new product
- */
-async function addProduct(productData) {
-  const products = await readProducts();
-
-  const newProduct = {
-    id: Date.now().toString(),
+async function addProduct(productData, userId) {
+  const doc = await Product.create({
+    userId,
     name: productData.name,
     category: productData.category,
     price: parseFloat(productData.price),
     promoPrice: productData.promoPrice ? parseFloat(productData.promoPrice) : null,
     promoEnabled: productData.promoEnabled || false,
     imageUrl: productData.imageUrl || null,
-    createdAt: new Date().toISOString(),
-  };
-
-  products.push(newProduct);
-  await writeProducts(products);
-
-  return newProduct;
+  });
+  return toPlain(doc);
 }
 
-/**
- * Get product by ID
- */
-async function getProductById(productId) {
-  const products = await readProducts();
-  return products.find((p) => p.id === productId) || null;
+async function getProductById(productId, userId) {
+  const doc = await Product.findOne({ _id: productId, userId });
+  return toPlain(doc);
 }
 
-/**
- * Update a product
- */
-async function updateProduct(productId, productData) {
-  const products = await readProducts();
-  const index = products.findIndex((p) => p.id === productId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const updatedProduct = {
-    ...products[index],
-    ...productData,
-    id: products[index].id,
-    createdAt: products[index].createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  products[index] = updatedProduct;
-  await writeProducts(products);
-
-  return updatedProduct;
+async function updateProduct(productId, productData, userId) {
+  const doc = await Product.findOneAndUpdate(
+    { _id: productId, userId },
+    { $set: productData },
+    { new: true }
+  );
+  return toPlain(doc);
 }
 
-/**
- * Delete a product
- */
-async function deleteProduct(productId) {
-  const products = await readProducts();
-  const index = products.findIndex((p) => p.id === productId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const deletedProduct = products[index];
-  products.splice(index, 1);
-  await writeProducts(products);
-
-  return deletedProduct;
+async function deleteProduct(productId, userId) {
+  const doc = await Product.findOneAndDelete({ _id: productId, userId });
+  return toPlain(doc);
 }
 
-/**
- * Get products grouped by category
- */
-async function getProductsByCategory() {
-  const products = await readProducts();
+async function getProductsByCategory(userId) {
+  const docs = await Product.find({ userId }).sort({ category: 1 });
   const grouped = {};
-
-  products.forEach((product) => {
-    if (!grouped[product.category]) {
-      grouped[product.category] = [];
-    }
+  docs.forEach((doc) => {
+    const product = toPlain(doc);
+    if (!grouped[product.category]) grouped[product.category] = [];
     grouped[product.category].push(product);
   });
-
   return grouped;
 }
 

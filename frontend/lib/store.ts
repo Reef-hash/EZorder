@@ -47,8 +47,12 @@ export interface Mark {
 }
 
 export interface User {
-  username: string
-  loginTime: string
+  _id: string
+  email: string
+  businessName: string
+  plan: string
+  trialExpiry?: string
+  subscriptionExpiry?: string | null
 }
 
 interface AppStore {

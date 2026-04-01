@@ -1,40 +1,32 @@
 import { useAppStore } from '@/lib/store'
+import api from '@/lib/api'
 
 export const useAuth = () => {
   const { user, setUser } = useAppStore()
 
-  const login = (username: string, password: string) => {
-    console.log('Login attempt with:', username)
-    if (username === 'user' && password === 'password') {
-      const newUser = { username, loginTime: new Date().toISOString() }
-      setUser(newUser)
-      localStorage.setItem('session', JSON.stringify(newUser))
-      console.log('Login successful, session saved:', newUser)
-      return true
-    }
-    console.log('Login failed - invalid credentials')
-    return false
+  const login = async (email: string, password: string): Promise<boolean> => {
+    const response = await api.post('/api/auth/login', { email, password })
+    const { token, user: userData } = response.data
+    localStorage.setItem('token', token)
+    setUser(userData)
+    return true
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('session')
+    localStorage.removeItem('token')
   }
 
-  const initAuth = () => {
-    const session = localStorage.getItem('session')
-    console.log('initAuth: checking localStorage, found:', session)
-    if (session) {
-      try {
-        const userData = JSON.parse(session)
-        setUser(userData)
-        console.log('Session restored:', userData)
-      } catch (e) {
-        console.error('Session parse error:', e)
-        logout()
-      }
-    } else {
-      console.log('No session in localStorage')
+  const initAuth = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      const response = await api.get('/api/auth/me')
+      setUser(response.data)
+    } catch {
+      localStorage.removeItem('token')
+      setUser(null)
     }
   }
 
