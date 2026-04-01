@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
-import { categoriesAPI } from '@/lib/api'
+import { productsAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 
 interface ProductFormProps {
@@ -29,20 +29,14 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
 
     setLoading(true)
     try {
-      await categoriesAPI.getAll()
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          category: formData.category,
-          price: parseFloat(formData.price),
-          promoPrice: formData.promoEnabled ? parseFloat(formData.promoPrice || '0') : null,
-          promoEnabled: formData.promoEnabled,
-        }),
+      await productsAPI.create({
+        name: formData.name,
+        category: formData.category,
+        price: parseFloat(formData.price),
+        promoPrice: formData.promoEnabled ? parseFloat(formData.promoPrice || '0') : null,
+        promoEnabled: formData.promoEnabled,
       })
 
-      if (!response.ok) throw new Error('Failed to add product')
       toast.success('Product added successfully!')
       setFormData({
         name: '',
