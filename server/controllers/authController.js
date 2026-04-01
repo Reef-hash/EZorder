@@ -3,7 +3,9 @@ import crypto from 'crypto';
 import { Resend } from 'resend';
 import User from '../models/userModel.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 function generateToken(userId) {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -94,7 +96,7 @@ export async function forgotPassword(req, res) {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'EZOrder <onboarding@resend.dev>',
       to: email,
       subject: 'Reset your EZOrder password',
