@@ -69,6 +69,7 @@ export async function login(req, res) {
         email: user.email,
         businessName: user.businessName,
         plan: user.plan,
+        role: user.role,
         trialExpiry: user.trialExpiry,
         isActive: user.isActive(),
       },
@@ -153,6 +154,7 @@ export async function getMe(req, res) {
     email: req.user.email,
     businessName: req.user.businessName,
     plan: req.user.plan,
+    role: req.user.role,
     trialExpiry: req.user.trialExpiry,
     isActive: req.user.isActive(),
   });
