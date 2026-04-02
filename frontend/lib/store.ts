@@ -5,6 +5,7 @@ function fmt(n: number) {
 }
 
 export interface OrderItem {
+  lineId: string
   id: string
   name: string
   price: number
@@ -107,12 +108,13 @@ interface AppStore {
   // Order actions
   setOrders: (orders: Order[]) => void
   addOrderItem: (item: OrderItem) => void
-  removeOrderItem: (productId: string) => void
-  updateOrderItemQuantity: (productId: string, quantity: number) => void
+  removeOrderItem: (lineId: string) => void
+  updateOrderItemQuantity: (lineId: string, quantity: number) => void
   setOrderType: (type: 'dine_in' | 'take_away') => void
   setOrderTable: (tableName: string | null) => void
   setDiscount: (discount: number, discountType: 'amount' | 'percent') => void
-  toggleItemMark: (itemId: string, markId: string) => void
+  splitOrderItem: (lineId: string) => void
+  toggleItemMark: (lineId: string, markId: string) => void
   clearCurrentOrder: () => void
   
   // Marks actions
@@ -172,13 +174,13 @@ export const useAppStore = create<AppStore>((set) => ({
 
   addOrderItem: (item) =>
     set((state) => {
-      const existingItem = state.currentOrder.items.find((i) => i.id === item.id)
-      if (existingItem) {
+      const sameIdLines = state.currentOrder.items.filter((i) => i.id === item.id)
+      if (sameIdLines.length === 1) {
         return {
           currentOrder: {
             ...state.currentOrder,
             items: state.currentOrder.items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+              i.lineId === sameIdLines[0].lineId ? { ...i, quantity: i.quantity + 1 } : i
             ),
           },
         }
@@ -186,28 +188,28 @@ export const useAppStore = create<AppStore>((set) => ({
       return {
         currentOrder: {
           ...state.currentOrder,
-          items: [...state.currentOrder.items, { ...item, quantity: 1, marks: [] }],
+          items: [...state.currentOrder.items, { ...item, lineId: crypto.randomUUID(), quantity: 1, marks: [] }],
         },
       }
     }),
 
-  removeOrderItem: (productId) =>
+  removeOrderItem: (lineId) =>
     set((state) => ({
       currentOrder: {
         ...state.currentOrder,
-        items: state.currentOrder.items.filter((i) => i.id !== productId),
+        items: state.currentOrder.items.filter((i) => i.lineId !== lineId),
       },
     })),
 
-  updateOrderItemQuantity: (productId, quantity) =>
+  updateOrderItemQuantity: (lineId, quantity) =>
     set((state) => ({
       currentOrder: {
         ...state.currentOrder,
         items:
           quantity <= 0
-            ? state.currentOrder.items.filter((i) => i.id !== productId)
+            ? state.currentOrder.items.filter((i) => i.lineId !== lineId)
             : state.currentOrder.items.map((i) =>
-                i.id === productId ? { ...i, quantity } : i
+                i.lineId === lineId ? { ...i, quantity } : i
               ),
       },
     })),
@@ -231,12 +233,29 @@ export const useAppStore = create<AppStore>((set) => ({
       currentOrder: { ...state.currentOrder, discount, discountType },
     })),
 
-  toggleItemMark: (itemId, markId) =>
+  splitOrderItem: (lineId) =>
+    set((state) => {
+      const item = state.currentOrder.items.find((i) => i.lineId === lineId)
+      if (!item || item.quantity <= 1) return state
+      return {
+        currentOrder: {
+          ...state.currentOrder,
+          items: [
+            ...state.currentOrder.items.map((i) =>
+              i.lineId === lineId ? { ...i, quantity: i.quantity - 1 } : i
+            ),
+            { ...item, lineId: crypto.randomUUID(), quantity: 1, marks: [] },
+          ],
+        },
+      }
+    }),
+
+  toggleItemMark: (lineId, markId) =>
     set((state) => ({
       currentOrder: {
         ...state.currentOrder,
         items: state.currentOrder.items.map((item) =>
-          item.id === itemId
+          item.lineId === lineId
             ? {
                 ...item,
                 marks: item.marks.includes(markId)

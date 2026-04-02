@@ -14,6 +14,7 @@ interface CurrentOrderBuilderProps {
 export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProps) {
   const {
     currentOrder,
+    marks,
     orders,
     setOrders,
     tables,
@@ -22,6 +23,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
     setDiscount,
     removeOrderItem,
     updateOrderItemQuantity,
+    splitOrderItem,
     clearCurrentOrder,
   } = useAppStore()
 
@@ -180,28 +182,50 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
               ) : (
                 <div className="space-y-2">
                   {currentOrder.items.map(item => (
-                    <div key={item.id} className="item-card-blue p-2.5">
+                    <div key={item.lineId} className="item-card-blue p-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-slate-100 text-sm truncate">{item.name}</p>
                           <p className="text-xs text-slate-500">RM{item.price.toFixed(2)}</p>
+                          {/* Mark badges */}
+                          {item.marks?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.marks.map(markId => {
+                                const mark = marks.find(m => m.id === markId)
+                                return mark ? (
+                                  <span key={markId} className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-semibold">
+                                    {mark.name}
+                                  </span>
+                                ) : null
+                              })}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
+                          {item.quantity > 1 && (
+                            <button
+                              onClick={() => splitOrderItem(item.lineId)}
+                              title="Split one unit"
+                              className="w-6 h-6 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500/60 hover:text-cyan-400 rounded text-xs flex items-center justify-center transition mr-0.5"
+                            >
+                              <i className="fas fa-cut" style={{ fontSize: '9px' }}></i>
+                            </button>
+                          )}
                           <button
-                            onClick={() => updateOrderItemQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateOrderItemQuantity(item.lineId, item.quantity - 1)}
                             className="w-6 h-6 bg-white/10 hover:bg-amber-500/20 text-slate-300 rounded text-xs flex items-center justify-center transition"
                           >
                             <i className="fas fa-minus" style={{ fontSize: '9px' }}></i>
                           </button>
                           <span className="w-6 text-center font-bold text-sm text-white">{item.quantity}</span>
                           <button
-                            onClick={() => updateOrderItemQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateOrderItemQuantity(item.lineId, item.quantity + 1)}
                             className="w-6 h-6 bg-white/10 hover:bg-amber-500/20 text-slate-300 rounded text-xs flex items-center justify-center transition"
                           >
                             <i className="fas fa-plus" style={{ fontSize: '9px' }}></i>
                           </button>
                           <button
-                            onClick={() => removeOrderItem(item.id)}
+                            onClick={() => removeOrderItem(item.lineId)}
                             className="w-6 h-6 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded text-xs flex items-center justify-center transition ml-1"
                           >
                             <i className="fas fa-times" style={{ fontSize: '9px' }}></i>
@@ -211,18 +235,18 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
 
                       <div className="flex items-center justify-between mt-1">
                         <button
-                          onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
-                          className="text-xs text-slate-500 hover:text-amber-400 transition"
+                          onClick={() => setExpandedItem(expandedItem === item.lineId ? null : item.lineId)}
+                          className="text-xs text-slate-500 hover:text-cyan-400 transition"
                         >
                           <i className="fas fa-tag mr-1"></i>
-                          {item.marks?.length ? `${item.marks.length} mark(s)` : 'Add marks'}
+                          {item.marks?.length ? 'Edit marks' : 'Add marks'}
                         </button>
                         <span className="text-xs font-bold text-amber-400">
                           RM{(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
 
-                      {expandedItem === item.id && <ItemMarksSelector itemId={item.id} />}
+                      {expandedItem === item.lineId && <ItemMarksSelector lineId={item.lineId} />}
                     </div>
                   ))}
                 </div>

@@ -29,7 +29,7 @@ function ElapsedTimer({ since }: { since: string }) {
 }
 
 export default function QueueTab() {
-  const { orders } = useAppStore()
+  const { orders, marks: allMarks } = useAppStore()
   const { loadOrders } = useData()
   const [payOrder, setPayOrder] = useState<Order | null>(null)
   const [refreshing, setRefreshing] = useState(false)
@@ -98,9 +98,23 @@ export default function QueueTab() {
               {/* Items list */}
               <div className="space-y-1.5 flex-1">
                 {order.items.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300 truncate flex-1">{item.name}</span>
-                    <span className="text-slate-500 ml-2 flex-shrink-0 font-semibold">×{item.quantity}</span>
+                  <div key={i}>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-300 truncate flex-1">{item.name}</span>
+                      <span className="text-slate-500 ml-2 flex-shrink-0 font-semibold">×{item.quantity}</span>
+                    </div>
+                    {item.marks?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {item.marks.map((markId, mi) => {
+                          const mark = allMarks.find(m => m.id === markId)
+                          return mark ? (
+                            <span key={mi} className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/25 text-cyan-300 font-semibold">
+                              {mark.name}
+                            </span>
+                          ) : null
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {order.orderType === 'dine_in' && (
