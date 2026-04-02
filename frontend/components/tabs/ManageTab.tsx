@@ -12,14 +12,13 @@ import ProductsList from '@/components/lists/ProductsList'
 import CategoriesList from '@/components/lists/CategoriesList'
 import MarksList from '@/components/lists/MarksList'
 
-type ManageSection = 'products' | 'categories' | 'marks' | 'tables'
+type ManageSection = 'products' | 'categories' | 'tables'
 
 export default function ManageTab() {
   const { loadProducts, loadCategories, loadMarks, loadTables } = useData()
   const { tables, setTables } = useAppStore()
   const [activeSection, setActiveSection] = useState<ManageSection>('products')
   const [tableName, setTableName] = useState('')
-  const [tableSeats, setTableSeats] = useState('4')
   const [addingTable, setAddingTable] = useState(false)
 
   const handleProductAdded = async () => {
@@ -40,10 +39,9 @@ export default function ManageTab() {
     if (!tableName.trim()) { toast.error('Enter table name'); return }
     setAddingTable(true)
     try {
-      await tablesAPI.create({ name: tableName.trim(), seats: parseInt(tableSeats) || 4 })
+      await tablesAPI.create({ name: tableName.trim() })
       toast.success('Table added!')
       setTableName('')
-      setTableSeats('4')
       await loadTables()
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to add table')
@@ -64,8 +62,7 @@ export default function ManageTab() {
 
   const SECTIONS: { id: ManageSection; icon: string; label: string }[] = [
     { id: 'products',   icon: 'fa-box',        label: 'Products'   },
-    { id: 'categories', icon: 'fa-folder',     label: 'Categories' },
-    { id: 'marks',      icon: 'fa-flag',       label: 'Marks'      },
+    { id: 'categories', icon: 'fa-folder',     label: 'Categories & Marks' },
     { id: 'tables',     icon: 'fa-chair',      label: 'Tables'     },
   ]
 
@@ -103,7 +100,7 @@ export default function ManageTab() {
         </div>
       )}
 
-      {/* Categories Section */}
+      {/* Categories + Marks Section */}
       {activeSection === 'categories' && (
         <div className="space-y-8">
           <div className="glass-effect rounded-2xl p-6 border border-slate-700/50">
@@ -114,14 +111,9 @@ export default function ManageTab() {
             <h2 className="text-2xl font-bold gradient-text mb-6">Your Categories</h2>
             <CategoriesList onDeleted={handleCategoryAdded} />
           </div>
-        </div>
-      )}
-
-      {/* Marks Section */}
-      {activeSection === 'marks' && (
-        <div className="space-y-8">
           <div className="glass-effect rounded-2xl p-6 border border-slate-700/50">
-            <h2 className="text-2xl font-bold gradient-text mb-6">Add New Mark</h2>
+            <h2 className="text-2xl font-bold gradient-text mb-6">Order Marks</h2>
+            <p className="text-xs text-slate-500 mb-4">Marks are item-level notes — e.g. &ldquo;No onion&rdquo;, &ldquo;Extra spicy&rdquo;</p>
             <MarkForm onSuccess={handleMarkAdded} />
           </div>
           <div className="glass-effect rounded-2xl p-6 border border-slate-700/50">
@@ -141,17 +133,9 @@ export default function ManageTab() {
                 type="text"
                 value={tableName}
                 onChange={e => setTableName(e.target.value)}
-                placeholder="Table name, e.g. T1 or Table 1"
+                placeholder="e.g. T1, Table 5, Counter"
                 className="input-base flex-1"
                 onKeyDown={e => e.key === 'Enter' && handleAddTable()}
-              />
-              <input
-                type="number"
-                value={tableSeats}
-                onChange={e => setTableSeats(e.target.value)}
-                placeholder="Seats"
-                className="input-base w-20 text-center"
-                min="1"
               />
               <button
                 onClick={handleAddTable}
@@ -174,10 +158,7 @@ export default function ManageTab() {
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                       <i className="fas fa-chair text-amber-400 text-lg"></i>
                     </div>
-                    <div className="text-center">
-                      <p className="font-bold text-slate-100 text-sm">{table.name}</p>
-                      <p className="text-xs text-slate-500">{table.seats} seats</p>
-                    </div>
+                    <p className="font-bold text-slate-100 text-sm">{table.name}</p>
                     <button
                       onClick={() => handleDeleteTable(table.id)}
                       className="text-xs text-red-400 hover:text-red-300 transition px-2 py-1 rounded border border-red-500/20 hover:border-red-500/40"

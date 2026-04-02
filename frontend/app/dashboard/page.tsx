@@ -16,7 +16,7 @@ const NAV_ITEMS: { id: ViewType; icon: string; label: string }[] = [
   { id: 'pos',     icon: 'fa-cash-register', label: 'POS'     },
   { id: 'queue',   icon: 'fa-bell',          label: 'Queue'   },
   { id: 'reports', icon: 'fa-chart-bar',     label: 'Reports' },
-  { id: 'manage',  icon: 'fa-cog',           label: 'Manage'  },
+  { id: 'manage',  icon: 'fa-cog',           label: 'Setup'   },
 ]
 
 export default function DashboardPage() {

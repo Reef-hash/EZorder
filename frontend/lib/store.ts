@@ -4,6 +4,15 @@ function fmt(n: number) {
   return `#${String(n).padStart(4, '0')}`
 }
 
+function loadCounter(): number {
+  if (typeof window === 'undefined') return 1
+  return parseInt(localStorage.getItem('ez_order_counter') || '1', 10)
+}
+
+function saveCounter(n: number) {
+  if (typeof window !== 'undefined') localStorage.setItem('ez_order_counter', String(n))
+}
+
 export interface OrderItem {
   lineId: string
   id: string
@@ -135,9 +144,9 @@ export const useAppStore = create<AppStore>((set) => ({
   marks: [],
   categories: [],
   tables: [],
-  orderCounter: 1,
+  orderCounter: loadCounter(),
   currentOrder: {
-    customerName: fmt(1),
+    customerName: fmt(loadCounter()),
     items: [],
     marks: [],
     orderType: 'take_away',
@@ -268,8 +277,9 @@ export const useAppStore = create<AppStore>((set) => ({
     })),
 
   clearCurrentOrder: () =>
-    set((state) => {
-      const next = state.orderCounter + 1
+    set((_state) => {
+      const next = loadCounter() + 1
+      saveCounter(next)
       return {
         orderCounter: next,
         currentOrder: {
