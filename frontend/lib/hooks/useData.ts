@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
-import { productsAPI, categoriesAPI, marksAPI, ordersAPI } from '@/lib/api'
+import { productsAPI, categoriesAPI, marksAPI, ordersAPI, tablesAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 
 export const useData = () => {
   const [loading, setLoading] = useState(false)
-  const { setProducts, setCategories, setMarks, setOrders } = useAppStore()
+  const { setProducts, setCategories, setMarks, setOrders, setTables } = useAppStore()
 
   const loadProducts = async () => {
     try {
@@ -25,9 +25,7 @@ export const useData = () => {
 
   const loadCategories = async () => {
     try {
-      console.log('📂 Loading categories...')
       const { data } = await categoriesAPI.getAll()
-      console.log('📂 Categories loaded:', data?.length || 0, 'items')
       setCategories(data)
       return true
     } catch (error) {
@@ -38,9 +36,7 @@ export const useData = () => {
 
   const loadMarks = async () => {
     try {
-      console.log('✅ Loading marks...')
       const { data } = await marksAPI.getAll()
-      console.log('✅ Marks loaded:', data?.length || 0, 'items')
       setMarks(data)
       return true
     } catch (error) {
@@ -51,9 +47,7 @@ export const useData = () => {
 
   const loadOrders = async () => {
     try {
-      console.log('📋 Loading orders...')
       const { data } = await ordersAPI.getAll()
-      console.log('📋 Orders loaded:', data?.length || 0, 'items')
       setOrders(data)
       return true
     } catch (error) {
@@ -62,7 +56,18 @@ export const useData = () => {
     }
   }
 
-const loadAllData = async () => {
+  const loadTables = async () => {
+    try {
+      const { data } = await tablesAPI.getAll()
+      setTables(data)
+      return true
+    } catch (error) {
+      console.error('❌ Tables error:', error)
+      return false
+    }
+  }
+
+  const loadAllData = async () => {
     try {
       console.log('🔄 Starting to load all data...')
       const results = await Promise.all([
@@ -70,14 +75,15 @@ const loadAllData = async () => {
         loadCategories().catch(e => { console.error('Categories failed:', e); return null }),
         loadMarks().catch(e => { console.error('Marks failed:', e); return null }),
         loadOrders().catch(e => { console.error('Orders failed:', e); return null }),
+        loadTables().catch(e => { console.error('Tables failed:', e); return null }),
       ])
-      
+
       const hasErrors = results.some(r => r === null)
       if (hasErrors) {
         console.warn('⚠️ Some data failed to load, but app can continue')
         toast.error('Some data failed to load')
       } else {
-        console.log('✅ All data loaded successfully:', results)
+        console.log('✅ All data loaded successfully')
       }
       return results
     } catch (error) {
@@ -87,5 +93,5 @@ const loadAllData = async () => {
     }
   }
 
-  return { loading, loadProducts, loadCategories, loadMarks, loadOrders, loadAllData }
+  return { loading, loadProducts, loadCategories, loadMarks, loadOrders, loadTables, loadAllData }
 }

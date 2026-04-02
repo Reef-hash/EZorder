@@ -16,6 +16,12 @@ const orderSchema = new mongoose.Schema({
   marks: [String],
   paymentMethod: { type: String, enum: ['cash', 'qr', null], default: null },
   status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
+  orderType: { type: String, enum: ['dine_in', 'take_away'], default: 'take_away' },
+  tableName: { type: String, default: null },
+  discount: { type: Number, default: 0, min: 0 },
+  discountType: { type: String, enum: ['amount', 'percent'], default: 'amount' },
+  amountPaid: { type: Number, default: null },
+  change: { type: Number, default: null },
   whatsappMessage: { type: String },
 }, { timestamps: true });
 
@@ -48,7 +54,13 @@ async function addOrder(orderData, userId) {
     total: orderData.total,
     marks: orderData.marks || [],
     paymentMethod: orderData.paymentMethod || null,
-    status: 'pending',
+    status: orderData.status || 'pending',
+    orderType: orderData.orderType || 'take_away',
+    tableName: orderData.tableName || null,
+    discount: orderData.discount || 0,
+    discountType: orderData.discountType || 'amount',
+    amountPaid: orderData.amountPaid || null,
+    change: orderData.change != null ? orderData.change : null,
     whatsappMessage: generateWhatsAppMessage(orderData.customerName, orderData.items, orderData.total),
   });
   return toPlain(doc);

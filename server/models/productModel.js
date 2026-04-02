@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema({
   promoPrice: { type: Number, default: null },
   promoEnabled: { type: Boolean, default: false },
   imageUrl: { type: String, default: null },
+  disabled: { type: Boolean, default: false },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);

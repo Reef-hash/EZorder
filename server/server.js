@@ -8,6 +8,7 @@ import markRoutes from './routes/markRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import tableRoutes from './routes/tableRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 import { adminMiddleware } from './middleware/adminMiddleware.js';
 
@@ -42,6 +43,7 @@ app.use('/api/orders', authMiddleware, orderRoutes);
 app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/marks', authMiddleware, markRoutes);
 app.use('/api/categories', authMiddleware, categoryRoutes);
+app.use('/api/tables', authMiddleware, tableRoutes);
 
 // One-time admin setup via env var (safe: only runs on server startup)
 async function setupAdminIfNeeded() {

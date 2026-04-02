@@ -121,6 +121,8 @@ async function updateProduct(req, res) {
     if (price) updateData.price = price;
     if (promoPrice !== undefined) updateData.promoPrice = promoPrice;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    if (req.body.disabled !== undefined) updateData.disabled = req.body.disabled;
+    if (req.body.promoEnabled !== undefined) updateData.promoEnabled = req.body.promoEnabled;
 
     const updatedProduct = await productModel.updateProduct(id, updateData, req.user._id);
 

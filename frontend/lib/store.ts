@@ -16,6 +16,12 @@ export interface Order {
   total: number
   status: 'pending' | 'completed' | 'cancelled'
   paymentMethod?: 'cash' | 'qr' | null
+  orderType?: 'dine_in' | 'take_away'
+  tableName?: string | null
+  discount?: number
+  discountType?: 'amount' | 'percent'
+  amountPaid?: number | null
+  change?: number | null
   createdAt: string
 }
 
@@ -27,6 +33,7 @@ export interface Product {
   promoPrice: number | null
   promoEnabled: boolean
   disabled: boolean
+  imageUrl?: string | null
   createdAt: string
 }
 
@@ -46,6 +53,14 @@ export interface Mark {
   createdAt: string
 }
 
+export interface Table {
+  id: string
+  name: string
+  seats: number
+  status: 'available' | 'occupied'
+  createdAt: string
+}
+
 export interface User {
   _id: string
   email: string
@@ -62,10 +77,15 @@ interface AppStore {
   orders: Order[]
   marks: Mark[]
   categories: Category[]
+  tables: Table[]
   currentOrder: {
     customerName: string
     items: OrderItem[]
     marks: string[]
+    orderType: 'dine_in' | 'take_away'
+    tableName: string | null
+    discount: number
+    discountType: 'amount' | 'percent'
   }
   selectedCategory: string | null
   
@@ -84,6 +104,9 @@ interface AppStore {
   removeOrderItem: (productId: string) => void
   updateOrderItemQuantity: (productId: string, quantity: number) => void
   setOrderCustomerName: (name: string) => void
+  setOrderType: (type: 'dine_in' | 'take_away') => void
+  setOrderTable: (tableName: string | null) => void
+  setDiscount: (discount: number, discountType: 'amount' | 'percent') => void
   toggleItemMark: (itemId: string, markId: string) => void
   clearCurrentOrder: () => void
   
@@ -93,6 +116,9 @@ interface AppStore {
   // Category actions
   setCategories: (categories: Category[]) => void
   selectCategory: (categoryId: string | null) => void
+
+  // Table actions
+  setTables: (tables: Table[]) => void
 }
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -101,10 +127,15 @@ export const useAppStore = create<AppStore>((set) => ({
   orders: [],
   marks: [],
   categories: [],
+  tables: [],
   currentOrder: {
     customerName: '',
     items: [],
     marks: [],
+    orderType: 'take_away',
+    tableName: null,
+    discount: 0,
+    discountType: 'amount',
   },
   selectedCategory: null,
 
@@ -177,10 +208,26 @@ export const useAppStore = create<AppStore>((set) => ({
 
   setOrderCustomerName: (name) =>
     set((state) => ({
+      currentOrder: { ...state.currentOrder, customerName: name },
+    })),
+
+  setOrderType: (orderType) =>
+    set((state) => ({
       currentOrder: {
         ...state.currentOrder,
-        customerName: name,
+        orderType,
+        tableName: orderType === 'take_away' ? null : state.currentOrder.tableName,
       },
+    })),
+
+  setOrderTable: (tableName) =>
+    set((state) => ({
+      currentOrder: { ...state.currentOrder, tableName },
+    })),
+
+  setDiscount: (discount, discountType) =>
+    set((state) => ({
+      currentOrder: { ...state.currentOrder, discount, discountType },
     })),
 
   toggleItemMark: (itemId, markId) =>
@@ -206,6 +253,10 @@ export const useAppStore = create<AppStore>((set) => ({
         customerName: '',
         items: [],
         marks: [],
+        orderType: 'take_away',
+        tableName: null,
+        discount: 0,
+        discountType: 'amount',
       },
       selectedCategory: null,
     }),
@@ -214,5 +265,7 @@ export const useAppStore = create<AppStore>((set) => ({
 
   setCategories: (categories) => set({ categories }),
 
-  selectCategory: (categoryId) => set({ selectedCategory: categoryId })
+  selectCategory: (categoryId) => set({ selectedCategory: categoryId }),
+
+  setTables: (tables) => set({ tables }),
 }))

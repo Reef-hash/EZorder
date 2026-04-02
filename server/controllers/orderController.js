@@ -21,7 +21,10 @@ async function getOrders(req, res) {
  */
 async function createOrder(req, res) {
   try {
-    const { customerName, items, total, marks, paymentMethod } = req.body;
+    const {
+      customerName, items, total, marks, paymentMethod,
+      orderType, tableName, discount, discountType, amountPaid, change, status,
+    } = req.body;
 
     // Validation
     if (!customerName || !items || !Array.isArray(items) || items.length === 0 || !total) {
@@ -51,6 +54,13 @@ async function createOrder(req, res) {
       total: parseFloat(total),
       marks: Array.isArray(marks) ? marks : [],
       paymentMethod: paymentMethod || null,
+      status: status || 'pending',
+      orderType: orderType || 'take_away',
+      tableName: tableName || null,
+      discount: discount || 0,
+      discountType: discountType || 'amount',
+      amountPaid: amountPaid || null,
+      change: change != null ? change : null,
     }, req.user._id);
 
     res.status(201).json(newOrder);

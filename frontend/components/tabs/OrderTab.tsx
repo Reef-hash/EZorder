@@ -2,66 +2,55 @@
 
 import { useState, useMemo } from 'react'
 import { useAppStore } from '@/lib/store'
-import { ordersAPI } from '@/lib/api'
-import toast from 'react-hot-toast'
 import ProductCard from '@/components/ProductCard'
 import CurrentOrderBuilder from '@/components/CurrentOrderBuilder'
 
 export default function OrderTab() {
-  const { products, categories, currentOrder, clearCurrentOrder } = useAppStore()
+  const { products, categories, currentOrder } = useAppStore()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showOrderPanel, setShowOrderPanel] = useState(false)
 
   const filteredProducts = useMemo(() => {
-    if (!selectedCategory) return products.filter((p: any) => !p.disabled)
-    return products.filter((p: any) => {
+    let result = products.filter((p: any) => !p.disabled)
+    if (selectedCategory) {
       const cat = categories.find((c: any) => c.id === selectedCategory)
-      return p.category === cat?.name && !p.disabled
-    })
-  }, [products, selectedCategory, categories])
-
-  const handleConfirmOrder = async () => {
-    if (!currentOrder.customerName.trim()) {
-      toast.error('Please enter customer name')
-      return
+      result = result.filter((p: any) => p.category === cat?.name)
     }
-
-    if (currentOrder.items.length === 0) {
-      toast.error('Please add items to the order')
-      return
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      result = result.filter((p: any) => p.name.toLowerCase().includes(q))
     }
+    return result
+  }, [products, selectedCategory, categories, searchQuery])
 
-    try {
-      const total = currentOrder.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
-
-      await ordersAPI.create({
-        customerName: currentOrder.customerName,
-        items: currentOrder.items,
-        marks: [],
-        total,
-      })
-
-      toast.success('Order saved successfully!')
-      clearCurrentOrder()
-    } catch (error) {
-      toast.error('Failed to save order')
-    }
-  }
+  const cartCount = currentOrder.items.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-4 gap-4 md:gap-8">
-      {/* Products List */}
-      <div className="lg:col-span-3">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold gradient-text mb-4">Select Products</h2>
+    <div className="flex-1 flex overflow-hidden relative">
+      {/* ===== Product Area ===== */}
+      <div className={`flex-1 overflow-y-auto flex flex-col transition-all duration-300 ${showOrderPanel ? 'md:flex hidden' : 'flex'} md:flex`}>
+        <div className="p-3 md:p-4 space-y-3">
+          {/* Search */}
+          <div className="relative">
+            <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="input-base pl-9 py-2.5 text-sm"
+            />
+          </div>
 
-          {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap mb-6 p-4 glass-effect rounded-lg">
+          {/* Category filter */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition border-2 ${
+              className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all border ${
                 selectedCategory === null
-                  ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
-                  : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-cyan-500'
+                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                  : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-slate-200'
               }`}
             >
               All
@@ -70,22 +59,28 @@ export default function OrderTab() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-lg font-semibold text-sm transition border-2 ${
+                className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all border ${
                   selectedCategory === cat.id
-                    ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
-                    : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-cyan-500'
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                    : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-slate-200'
                 }`}
               >
+                <i className={`fas ${cat.icon} mr-1.5`}></i>
                 {cat.name}
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Products Grid */}
+        {/* Products Grid */}
+        <div className="px-3 md:px-4 pb-24 md:pb-4">
           {filteredProducts.length === 0 ? (
-            <p className="text-gray-400">No products available</p>
+            <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+              <i className="fas fa-box-open text-4xl mb-3 opacity-30"></i>
+              <p className="text-sm">No products found</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {filteredProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -94,10 +89,38 @@ export default function OrderTab() {
         </div>
       </div>
 
-      {/* Current Order Builder */}
-      <div className="lg:col-span-1">
-        <CurrentOrderBuilder onConfirmOrder={handleConfirmOrder} />
+      {/* ===== Order Panel — desktop side panel / mobile full screen ===== */}
+      <div className={`
+        md:flex md:flex-col md:w-[340px] md:flex-shrink-0 md:border-l md:border-amber-500/10 bg-[#0f1117]
+        ${showOrderPanel
+          ? 'fixed inset-0 z-40 flex flex-col md:relative md:inset-auto md:z-auto'
+          : 'hidden md:flex'}
+      `}>
+        {/* Mobile close button */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-amber-500/10">
+          <span className="font-bold text-amber-400">Order Panel</span>
+          <button onClick={() => setShowOrderPanel(false)} className="text-slate-400 hover:text-white p-1">
+            <i className="fas fa-times text-lg"></i>
+          </button>
+        </div>
+        <CurrentOrderBuilder onClose={() => setShowOrderPanel(false)} />
       </div>
+
+      {/* Mobile floating cart button */}
+      {!showOrderPanel && (
+        <button
+          onClick={() => setShowOrderPanel(true)}
+          className="md:hidden fixed bottom-20 right-4 z-30 btn-primary w-14 h-14 rounded-full shadow-2xl shadow-amber-500/30 flex items-center justify-center"
+        >
+          <i className="fas fa-shopping-cart text-lg"></i>
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
+        </button>
+      )}
     </div>
   )
 }
+

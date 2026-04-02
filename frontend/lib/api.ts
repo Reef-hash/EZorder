@@ -94,4 +94,12 @@ export const adminAPI = {
     api.patch(`/api/admin/users/${id}/plan`, { action }),
 }
 
+// Tables
+export const tablesAPI = {
+  getAll: () => api.get('/api/tables'),
+  create: (data: any) => api.post('/api/tables', data),
+  update: (id: string, data: any) => api.patch(`/api/tables/${id}`, data),
+  delete: (id: string) => api.delete(`/api/tables/${id}`),
+}
+
 export default api
