@@ -110,14 +110,14 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-[#1e1e1e] text-[#d4d4d4]">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-500 to-orange-600 shadow-2xl">
+      <header className="sticky top-0 z-50 bg-[#252526] border-b border-[#007acc]/50 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 md:h-16">
             <div className="flex items-center gap-2">
-              <i className="fas fa-shield-alt text-white text-xl"></i>
-              <h1 className="text-white font-bold text-xl">EZOrder Admin</h1>
+              <i className="fas fa-shield-alt text-[#569cd6] text-xl"></i>
+              <h1 className="text-[#d4d4d4] font-bold text-xl">EZOrder Admin</h1>
             </div>
             <button
               onClick={() => router.push('/dashboard')}
@@ -141,7 +141,7 @@ export default function AdminPage() {
               { label: 'Active', value: stats.active, icon: 'fa-check-circle', color: 'text-emerald-400' },
               { label: 'Expired', value: stats.expired + stats.cancelled, icon: 'fa-times-circle', color: 'text-red-400' },
             ].map((s) => (
-              <div key={s.label} className="glass-effect rounded-xl p-4 border border-slate-700/50">
+              <div key={s.label} className="bg-[#2d2d30] border border-[#3e3e42] rounded-lg p-4 hover:border-[#569cd6]/50 transition-colors">
                 <div className="flex items-center gap-2 mb-1">
                   <i className={`fas ${s.icon} ${s.color} text-sm`}></i>
                   <span className="text-slate-400 text-xs font-medium">{s.label}</span>
@@ -187,11 +187,11 @@ export default function AdminPage() {
         </div>
 
         {/* Users Table */}
-        <div className="glass-effect rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="bg-[#2d2d30] border border-[#3e3e42] rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-700/50 bg-slate-800/50">
+                <tr className="border-b border-[#3e3e42] bg-[#252526]">
                   <th className="text-left px-4 py-3 text-slate-400 text-sm font-semibold">Business</th>
                   <th className="text-left px-4 py-3 text-slate-400 text-sm font-semibold">Email</th>
                   <th className="text-left px-4 py-3 text-slate-400 text-sm font-semibold">Plan</th>

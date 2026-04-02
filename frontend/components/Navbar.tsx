@@ -32,16 +32,27 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-500 to-orange-600 shadow-2xl">
+    <header className="sticky top-0 z-50 bg-[#0a0c14] border-b border-amber-500/20 shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 md:h-16">
-          <div className="flex items-center gap-2">
-            <i className="fas fa-shopping-bag text-white text-xl md:text-2xl"></i>
-            <h1 className="text-white font-bold text-xl md:text-2xl">EZOrder</h1>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-bold text-black text-base shadow-lg shadow-amber-500/30">
+                {user?.businessName?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ${
+                user?.plan === 'active'
+                  ? 'bg-amber-400 text-black'
+                  : 'bg-[#1a1f2e] text-amber-400 border border-amber-500/50'
+              }`}>
+                {user?.plan === 'active' ? 'PRO' : 'TRIAL'}
+              </span>
+            </div>
+            <h1 className="text-amber-400 font-bold text-xl md:text-2xl tracking-tight">EZOrder</h1>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            <span className="hidden sm:block text-amber-50 text-sm">Welcome, {user?.businessName}</span>
+            <span className="hidden sm:block text-slate-400 text-sm">{user?.businessName}</span>
 
             {/* Theme toggle */}
             <button
