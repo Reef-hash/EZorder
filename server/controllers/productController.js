@@ -35,7 +35,7 @@ async function getProductsGrouped(req, res) {
  */
 async function createProduct(req, res) {
   try {
-    const { name, category, price, promoPrice, promoEnabled, imageUrl } = req.body;
+    const { name, category, price, promoPrice, promoEnabled, imageUrl, trackStock, stockQty, costPrice } = req.body;
 
     // Validation
     if (!name || !category || !price) {
@@ -63,6 +63,9 @@ async function createProduct(req, res) {
       promoPrice,
       promoEnabled,
       imageUrl,
+      trackStock: trackStock || false,
+      stockQty: trackStock ? (stockQty != null ? parseInt(stockQty) : 0) : null,
+      costPrice: costPrice ? parseFloat(costPrice) : null,
     }, req.user._id);
 
     res.status(201).json(newProduct);
@@ -123,6 +126,9 @@ async function updateProduct(req, res) {
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (req.body.disabled !== undefined) updateData.disabled = req.body.disabled;
     if (req.body.promoEnabled !== undefined) updateData.promoEnabled = req.body.promoEnabled;
+    if (req.body.trackStock !== undefined) updateData.trackStock = req.body.trackStock;
+    if (req.body.stockQty !== undefined) updateData.stockQty = req.body.trackStock ? parseInt(req.body.stockQty) : null;
+    if (req.body.costPrice !== undefined) updateData.costPrice = req.body.costPrice ? parseFloat(req.body.costPrice) : null;
 
     const updatedProduct = await productModel.updateProduct(id, updateData, req.user._id);
 
@@ -134,6 +140,32 @@ async function updateProduct(req, res) {
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ message: 'Failed to update product.' });
+  }
+}
+
+/**
+ * Adjust stock quantity
+ * PATCH /api/products/:id/stock
+ * Body: { adjustment: number } (positive or negative)
+ */
+async function adjustStock(req, res) {
+  try {
+    const { id } = req.params;
+    const { adjustment } = req.body;
+
+    if (adjustment === undefined || typeof adjustment !== 'number' || !Number.isInteger(adjustment)) {
+      return res.status(400).json({ message: 'adjustment must be an integer.' });
+    }
+
+    const updated = await productModel.adjustStock(id, adjustment, req.user._id);
+    if (!updated) {
+      return res.status(404).json({ message: 'Product not found or stock tracking not enabled.' });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Error adjusting stock:', error);
+    res.status(500).json({ message: 'Failed to adjust stock.' });
   }
 }
 
@@ -164,4 +196,5 @@ export {
   getProduct,
   updateProduct,
   deleteProduct,
+  adjustStock,
 };

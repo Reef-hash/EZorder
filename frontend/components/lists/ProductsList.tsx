@@ -7,8 +7,21 @@ import toast from 'react-hot-toast'
 import ProductEditForm from '../forms/ProductEditForm'
 
 export default function ProductsList() {
-  const { products, toggleProductDisabled, removeProductLocal } = useAppStore()
+  const { products, toggleProductDisabled, removeProductLocal, updateProductStock } = useAppStore()
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [adjustingId, setAdjustingId] = useState<string | null>(null)
+
+  const handleAdjustStock = async (id: string, adjustment: number) => {
+    setAdjustingId(id)
+    try {
+      const { data } = await productsAPI.adjustStock(id, adjustment)
+      updateProductStock(id, data.stockQty)
+    } catch {
+      toast.error('Failed to adjust stock')
+    } finally {
+      setAdjustingId(null)
+    }
+  }
 
   const deleteProduct = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return
@@ -82,6 +95,37 @@ export default function ProductsList() {
                   </div>
                 )}
               </div>
+
+              {product.trackStock && product.stockQty !== null && (
+                <div className="mb-3 p-3 rounded-xl bg-white/4 border border-slate-700/40">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-400">Stock</span>
+                    <span className={`text-sm font-bold ${
+                      product.stockQty <= 0 ? 'text-red-400' :
+                      product.stockQty <= 5 ? 'text-amber-400' :
+                      'text-emerald-400'
+                    }`}>
+                      {product.stockQty <= 0 ? 'Out' : product.stockQty}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    {[-10, -5, -1, +1, +5, +10].map(adj => (
+                      <button
+                        key={adj}
+                        onClick={() => handleAdjustStock(product.id, adj)}
+                        disabled={adjustingId === product.id}
+                        className={`flex-1 py-1 rounded text-[10px] font-bold transition border disabled:opacity-40 ${
+                          adj < 0
+                            ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20'
+                            : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                        }`}
+                      >
+                        {adj > 0 ? `+${adj}` : adj}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <button

@@ -48,6 +48,9 @@ export interface Product {
   promoEnabled: boolean
   disabled: boolean
   imageUrl?: string | null
+  trackStock: boolean
+  stockQty: number | null
+  costPrice: number | null
   createdAt: string
 }
 
@@ -83,6 +86,7 @@ export interface User {
   role: 'user' | 'admin'
   trialExpiry?: string
   subscriptionExpiry?: string | null
+  businessType?: 'restaurant' | 'retail' | 'both'
 }
 
 interface AppStore {
@@ -109,6 +113,7 @@ interface AppStore {
   // Product actions
   setProducts: (products: Product[]) => void
   updateProduct: (id: string, product: Partial<Product>) => void
+  updateProductStock: (id: string, newQty: number) => void
   toggleProductDisabled: (id: string) => void
   removeProductLocal: (id: string) => void
   
@@ -164,6 +169,13 @@ export const useAppStore = create<AppStore>((set) => ({
     set((state) => ({
       products: state.products.map((p) =>
         p.id === id ? { ...p, ...updatedFields } : p
+      ),
+    })),
+
+  updateProductStock: (id, newQty) =>
+    set((state) => ({
+      products: state.products.map((p) =>
+        p.id === id ? { ...p, stockQty: newQty } : p
       ),
     })),
 

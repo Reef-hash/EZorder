@@ -6,6 +6,7 @@ import {
   getProduct,
   updateProduct,
   deleteProduct,
+  adjustStock,
 } from '../controllers/productController.js';
 
 const router = express.Router();
@@ -24,6 +25,9 @@ router.get('/:id', getProduct);
 
 // PUT /api/products/:id - Update product
 router.put('/:id', updateProduct);
+
+// PATCH /api/products/:id/stock - Adjust stock quantity
+router.patch('/:id/stock', adjustStock);
 
 // DELETE /api/products/:id - Delete product
 router.delete('/:id', deleteProduct);

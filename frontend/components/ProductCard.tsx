@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 import { Product } from '@/lib/store'
+import toast from 'react-hot-toast'
 
 interface ProductCardProps {
   product: Product
@@ -13,8 +14,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [flash, setFlash] = useState(false)
 
   const displayPrice = product.promoPrice && product.promoEnabled ? product.promoPrice : product.price
+  const isOutOfStock = product.trackStock && product.stockQty !== null && product.stockQty <= 0
+  const isLowStock = product.trackStock && product.stockQty !== null && product.stockQty > 0 && product.stockQty <= 5
 
   const handleAdd = () => {
+    if (isOutOfStock) {
+      toast.error(`${product.name} is out of stock`)
+      return
+    }
     addOrderItem({
       lineId: '',
       id: product.id,
@@ -30,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div
       onClick={handleAdd}
-      className={`card-hover-glow cursor-pointer select-none transition-all duration-150 active:scale-95 ${flash ? 'scale-95' : ''}`}
+      className={`card-hover-glow cursor-pointer select-none transition-all duration-150 active:scale-95 ${flash ? 'scale-95' : ''} ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {/* Image area */}
       {product.imageUrl ? (
@@ -63,6 +70,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             RM{displayPrice.toFixed(2)}
           </p>
         </div>
+        {isOutOfStock && (
+          <span className="inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400">
+            Out of Stock
+          </span>
+        )}
+        {isLowStock && (
+          <span className="inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400">
+            Low: {product.stockQty} left
+          </span>
+        )}
       </div>
     </div>
   )

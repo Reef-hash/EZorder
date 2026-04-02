@@ -1,4 +1,5 @@
 import * as orderModel from '../models/orderModel.js';
+import * as productModel from '../models/productModel.js';
 
 /**
  * Get all orders
@@ -63,6 +64,10 @@ async function createOrder(req, res) {
       change: change != null ? change : null,
     }, req.user._id);
 
+    if ((status || 'pending') === 'completed') {
+      await productModel.deductStock(items, req.user._id).catch(console.error);
+    }
+
     res.status(201).json(newOrder);
   } catch (error) {
     console.error('Error creating order:', error);
@@ -98,6 +103,14 @@ async function updateOrder(req, res) {
     if (paymentMethod) updateData.paymentMethod = paymentMethod;
     if (amountPaid != null) updateData.amountPaid = amountPaid;
     if (change != null) updateData.change = change;
+
+    // Deduct stock if order is being marked as completed
+    if (status === 'completed') {
+      const existingOrder = await orderModel.getOrderById(id, req.user._id);
+      if (existingOrder && existingOrder.status !== 'completed') {
+        await productModel.deductStock(existingOrder.items, req.user._id).catch(console.error);
+      }
+    }
 
     const updatedOrder = await orderModel.updateOrder(id, updateData, req.user._id);
 

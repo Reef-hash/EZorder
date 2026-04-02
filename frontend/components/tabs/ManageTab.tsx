@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useData } from '@/lib/hooks/useData'
 import { useAppStore } from '@/lib/store'
-import { tablesAPI } from '@/lib/api'
+import { tablesAPI, authAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 import ProductForm from '@/components/forms/ProductForm'
 import CategoryForm from '@/components/forms/CategoryForm'
@@ -16,10 +16,11 @@ type ManageSection = 'products' | 'categories' | 'tables'
 
 export default function ManageTab() {
   const { loadProducts, loadCategories, loadMarks, loadTables } = useData()
-  const { tables, setTables } = useAppStore()
+  const { tables, setTables, user, setUser } = useAppStore()
   const [activeSection, setActiveSection] = useState<ManageSection>('products')
   const [tableName, setTableName] = useState('')
   const [addingTable, setAddingTable] = useState(false)
+  const [updatingBizType, setUpdatingBizType] = useState(false)
 
   const handleProductAdded = async () => {
     await loadProducts()
@@ -60,14 +61,52 @@ export default function ManageTab() {
     }
   }
 
+  const handleBizType = async (type: 'restaurant' | 'retail' | 'both') => {
+    if (user?.businessType === type) return
+    setUpdatingBizType(true)
+    try {
+      const { data } = await authAPI.updateProfile({ businessType: type })
+      setUser(data.user)
+      toast.success(`Switched to ${type} mode`)
+    } catch {
+      toast.error('Failed to update business type')
+    } finally {
+      setUpdatingBizType(false)
+    }
+  }
+
   const SECTIONS: { id: ManageSection; icon: string; label: string }[] = [
     { id: 'products',   icon: 'fa-box',        label: 'Products'   },
     { id: 'categories', icon: 'fa-folder',     label: 'Categories & Marks' },
-    { id: 'tables',     icon: 'fa-chair',      label: 'Tables'     },
+    ...(user?.businessType !== 'retail' ? [{ id: 'tables' as ManageSection, icon: 'fa-chair', label: 'Tables' }] : []),
   ]
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Business Type Selector */}
+      <div className="glass-effect rounded-2xl p-4 border border-slate-700/50">
+        <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">Business Type</p>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { value: 'restaurant', icon: '🍽️', label: 'Restaurant' },
+            { value: 'retail',     icon: '🏪', label: 'Retail' },
+            { value: 'both',       icon: '🏬', label: 'Both' },
+          ] as const).map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => handleBizType(opt.value)}
+              disabled={updatingBizType}
+              className={`py-2.5 px-3 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50 ${
+                user?.businessType === opt.value
+                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+                  : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-slate-200'
+              }`}
+            >
+              <span className="mr-1.5">{opt.icon}</span>{opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
       {/* Section Tabs */}
       <div className="flex gap-1 bg-white/5 rounded-xl p-1 border border-white/8 overflow-x-auto scrollbar-none">
         {SECTIONS.map(s => (

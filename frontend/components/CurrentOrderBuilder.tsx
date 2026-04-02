@@ -18,6 +18,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
     orders,
     setOrders,
     tables,
+    user,
     setOrderType,
     setOrderTable,
     setDiscount,
@@ -26,6 +27,8 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
     splitOrderItem,
     clearCurrentOrder,
   } = useAppStore()
+
+  const isRetail = user?.businessType === 'retail'
 
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [showPayment, setShowPayment] = useState(false)
@@ -99,7 +102,8 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
 
         <div className="flex-1 overflow-y-auto scrollbar-none">
           <div className="p-3 space-y-3">
-            {/* Order Type */}
+            {/* Order Type — Restaurant / Both only */}
+            {!isRetail && (
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1.5">
                 <i className="fas fa-tag mr-1"></i>Order Type
@@ -127,9 +131,10 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
                 </button>
               </div>
             </div>
+            )}
 
-            {/* Table Selector — only for Dine In */}
-            {currentOrder.orderType === 'dine_in' && (
+            {/* Table Selector — only for Dine In + non-retail */}
+            {!isRetail && currentOrder.orderType === 'dine_in' && (
               <div>
                 <label className="block text-xs font-semibold text-slate-400 mb-1.5">
                   <i className="fas fa-chair mr-1"></i>Table

@@ -70,6 +70,7 @@ export async function login(req, res) {
         businessName: user.businessName,
         plan: user.plan,
         role: user.role,
+        businessType: user.businessType || 'restaurant',
         trialExpiry: user.trialExpiry,
         isActive: user.isActive(),
       },
@@ -155,7 +156,35 @@ export async function getMe(req, res) {
     businessName: req.user.businessName,
     plan: req.user.plan,
     role: req.user.role,
+    businessType: req.user.businessType || 'restaurant',
     trialExpiry: req.user.trialExpiry,
     isActive: req.user.isActive(),
   });
+}
+
+// PATCH /api/auth/profile
+export async function updateProfile(req, res) {
+  try {
+    const { businessType } = req.body;
+    const valid = ['restaurant', 'retail', 'both'];
+    if (businessType && !valid.includes(businessType)) {
+      return res.status(400).json({ message: 'Invalid businessType' });
+    }
+    const update = {};
+    if (businessType) update.businessType = businessType;
+    const user = await User.findByIdAndUpdate(req.user._id, { $set: update }, { new: true });
+    res.json({
+      id: user._id,
+      email: user.email,
+      businessName: user.businessName,
+      plan: user.plan,
+      role: user.role,
+      businessType: user.businessType,
+      trialExpiry: user.trialExpiry,
+      isActive: user.isActive(),
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
+  }
 }

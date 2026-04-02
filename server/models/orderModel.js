@@ -66,6 +66,11 @@ async function addOrder(orderData, userId) {
   return toPlain(doc);
 }
 
+async function getOrderById(orderId, userId) {
+  const doc = await Order.findOne({ _id: orderId, userId });
+  return toPlain(doc);
+}
+
 async function updateOrder(orderId, updateData, userId) {
   const doc = await Order.findOneAndUpdate(
     { _id: orderId, userId },
@@ -79,4 +84,4 @@ async function updateOrderStatus(orderId, status, userId) {
   return updateOrder(orderId, { status }, userId);
 }
 
-export { getAllOrders, addOrder, updateOrderStatus, updateOrder, generateWhatsAppMessage };
+export { getAllOrders, addOrder, updateOrderStatus, updateOrder, getOrderById, generateWhatsAppMessage };

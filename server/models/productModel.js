@@ -9,6 +9,9 @@ const productSchema = new mongoose.Schema({
   promoEnabled: { type: Boolean, default: false },
   imageUrl: { type: String, default: null },
   disabled: { type: Boolean, default: false },
+  trackStock: { type: Boolean, default: false },
+  stockQty: { type: Number, default: null },
+  costPrice: { type: Number, default: null },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
@@ -36,6 +39,9 @@ async function addProduct(productData, userId) {
     promoPrice: productData.promoPrice ? parseFloat(productData.promoPrice) : null,
     promoEnabled: productData.promoEnabled || false,
     imageUrl: productData.imageUrl || null,
+    trackStock: productData.trackStock || false,
+    stockQty: productData.trackStock ? (productData.stockQty != null ? parseInt(productData.stockQty) : 0) : null,
+    costPrice: productData.costPrice ? parseFloat(productData.costPrice) : null,
   });
   return toPlain(doc);
 }
@@ -59,6 +65,28 @@ async function deleteProduct(productId, userId) {
   return toPlain(doc);
 }
 
+async function deductStock(items, userId) {
+  const qtyMap = {};
+  for (const item of items) {
+    if (item.id) qtyMap[item.id] = (qtyMap[item.id] || 0) + item.quantity;
+  }
+  for (const [productId, qty] of Object.entries(qtyMap)) {
+    await Product.updateOne(
+      { _id: productId, userId, trackStock: true, stockQty: { $gte: 0 } },
+      { $inc: { stockQty: -qty } }
+    );
+  }
+}
+
+async function adjustStock(productId, adjustment, userId) {
+  const doc = await Product.findOneAndUpdate(
+    { _id: productId, userId, trackStock: true },
+    { $inc: { stockQty: adjustment } },
+    { new: true }
+  );
+  return toPlain(doc);
+}
+
 async function getProductsByCategory(userId) {
   const docs = await Product.find({ userId }).sort({ category: 1 });
   const grouped = {};
@@ -77,4 +105,6 @@ export {
   updateProduct,
   deleteProduct,
   getProductsByCategory,
+  deductStock,
+  adjustStock,
 };

@@ -46,6 +46,7 @@ export const productsAPI = {
   create: (data: any) => api.post('/api/products', data),
   update: (id: string, data: any) => api.put(`/api/products/${id}`, data),
   delete: (id: string) => api.delete(`/api/products/${id}`),
+  adjustStock: (id: string, adjustment: number) => api.patch(`/api/products/${id}/stock`, { adjustment }),
 }
 
 // Categories
@@ -83,6 +84,7 @@ export const authAPI = {
   resetPassword: (token: string, password: string) =>
     api.post('/api/auth/reset-password', { token, password }),
   getMe: () => api.get('/api/auth/me'),
+  updateProfile: (data: { businessType?: string }) => api.patch('/api/auth/profile', data),
 }
 
 // Admin
