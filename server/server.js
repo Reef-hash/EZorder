@@ -17,9 +17,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB
-connectDB();
-
 // Middleware
 app.use(cors({
   origin: true,
@@ -58,8 +55,17 @@ async function setupAdminIfNeeded() {
   }
 }
 
-// Start server
-app.listen(PORT, async () => {
-  console.log(`✓ EZOrder running on http://localhost:${PORT}`);
-  await setupAdminIfNeeded();
+// Connect to MongoDB first, then start the server so all routes
+// are guaranteed to have an active connection from the first request.
+async function startServer() {
+  await connectDB();
+  app.listen(PORT, async () => {
+    console.log(`✓ EZOrder running on http://localhost:${PORT}`);
+    await setupAdminIfNeeded();
+  });
+}
+
+startServer().catch((error) => {
+  console.error('✗ MongoDB connection failed:', error.message);
+  process.exit(1);
 });
