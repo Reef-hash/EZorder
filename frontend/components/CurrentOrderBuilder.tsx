@@ -14,7 +14,6 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
   const {
     currentOrder,
     tables,
-    setOrderCustomerName,
     setOrderType,
     setOrderTable,
     setDiscount,
@@ -35,7 +34,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
 
   const total = Math.max(0, subtotal - discountAmount)
 
-  const canCheckout = currentOrder.customerName.trim() && currentOrder.items.length > 0
+  const canCheckout = currentOrder.items.length > 0
 
   const handleClear = () => {
     if (currentOrder.items.length === 0) return
@@ -48,10 +47,13 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
       <div className="flex flex-col h-full overflow-hidden bg-[#0f1117]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-amber-500/10 flex-shrink-0">
-          <h2 className="font-bold text-amber-400 text-base flex items-center gap-2">
-            <i className="fas fa-receipt"></i>
-            Current Order
-          </h2>
+          <div>
+            <h2 className="font-bold text-amber-400 text-base flex items-center gap-2">
+              <i className="fas fa-receipt"></i>
+              Current Order
+            </h2>
+            <p className="text-xs text-blue-400 font-bold tracking-widest mt-0.5">Bill {currentOrder.customerName}</p>
+          </div>
           <div className="flex items-center gap-2">
             {currentOrder.items.length > 0 && (
               <button onClick={handleClear} className="text-xs text-red-400 hover:text-red-300 transition px-2 py-1 rounded border border-red-500/20 hover:border-red-500/40">
@@ -63,20 +65,6 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
 
         <div className="flex-1 overflow-y-auto scrollbar-none">
           <div className="p-3 space-y-3">
-            {/* Customer Name */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-                <i className="fas fa-user mr-1"></i>Customer Name
-              </label>
-              <input
-                type="text"
-                value={currentOrder.customerName}
-                onChange={e => setOrderCustomerName(e.target.value)}
-                placeholder="e.g. Ahmad"
-                className="input-base py-2.5 text-sm"
-              />
-            </div>
-
             {/* Order Type */}
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1.5">
@@ -160,7 +148,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
               ) : (
                 <div className="space-y-2">
                   {currentOrder.items.map(item => (
-                    <div key={item.id} className="bg-white/5 border border-white/8 rounded-xl p-2.5">
+                    <div key={item.id} className="item-card-blue p-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-slate-100 text-sm truncate">{item.name}</p>

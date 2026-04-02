@@ -1,5 +1,9 @@
 import { create } from 'zustand'
 
+function fmt(n: number) {
+  return `#${String(n).padStart(4, '0')}`
+}
+
 export interface OrderItem {
   id: string
   name: string
@@ -98,12 +102,13 @@ interface AppStore {
   toggleProductDisabled: (id: string) => void
   removeProductLocal: (id: string) => void
   
+  orderCounter: number
+
   // Order actions
   setOrders: (orders: Order[]) => void
   addOrderItem: (item: OrderItem) => void
   removeOrderItem: (productId: string) => void
   updateOrderItemQuantity: (productId: string, quantity: number) => void
-  setOrderCustomerName: (name: string) => void
   setOrderType: (type: 'dine_in' | 'take_away') => void
   setOrderTable: (tableName: string | null) => void
   setDiscount: (discount: number, discountType: 'amount' | 'percent') => void
@@ -128,8 +133,9 @@ export const useAppStore = create<AppStore>((set) => ({
   marks: [],
   categories: [],
   tables: [],
+  orderCounter: 1,
   currentOrder: {
-    customerName: '',
+    customerName: fmt(1),
     items: [],
     marks: [],
     orderType: 'take_away',
@@ -206,11 +212,6 @@ export const useAppStore = create<AppStore>((set) => ({
       },
     })),
 
-  setOrderCustomerName: (name) =>
-    set((state) => ({
-      currentOrder: { ...state.currentOrder, customerName: name },
-    })),
-
   setOrderType: (orderType) =>
     set((state) => ({
       currentOrder: {
@@ -248,17 +249,21 @@ export const useAppStore = create<AppStore>((set) => ({
     })),
 
   clearCurrentOrder: () =>
-    set({
-      currentOrder: {
-        customerName: '',
-        items: [],
-        marks: [],
-        orderType: 'take_away',
-        tableName: null,
-        discount: 0,
-        discountType: 'amount',
-      },
-      selectedCategory: null,
+    set((state) => {
+      const next = state.orderCounter + 1
+      return {
+        orderCounter: next,
+        currentOrder: {
+          customerName: fmt(next),
+          items: [],
+          marks: [],
+          orderType: 'take_away',
+          tableName: null,
+          discount: 0,
+          discountType: 'amount',
+        },
+        selectedCategory: null,
+      }
     }),
 
   setMarks: (marks) => set({ marks }),

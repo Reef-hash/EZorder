@@ -2,29 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { useState, useEffect } from 'react'
 
 export default function Navbar() {
   const router = useRouter()
   const { user, logout } = useAuth()
-  const [isDark, setIsDark] = useState(true)
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'))
-  }, [])
-
-  const toggleTheme = () => {
-    const dark = document.documentElement.classList.contains('dark')
-    if (dark) {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-      setIsDark(false)
-    } else {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-      setIsDark(true)
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -53,15 +34,6 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 md:gap-3">
             <span className="hidden sm:block text-slate-400 text-sm">{user?.businessName}</span>
-
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="bg-white/20 hover:bg-white/30 text-white w-9 h-9 rounded-lg font-semibold transition flex items-center justify-center text-sm"
-            >
-              <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
-            </button>
 
             {user?.role === 'admin' && (
               <button

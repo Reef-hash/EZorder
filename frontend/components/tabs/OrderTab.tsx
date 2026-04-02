@@ -44,31 +44,31 @@ export default function OrderTab() {
           </div>
 
           {/* Category filter */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all border ${
-                selectedCategory === null
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-slate-200'
-              }`}
+              className={`category-card flex-shrink-0 flex flex-col items-center gap-1.5 px-4 py-3 min-w-[72px] ${selectedCategory === null ? 'active' : ''}`}
             >
-              All
+              <i className={`fas fa-th text-base ${selectedCategory === null ? 'text-blue-400' : 'text-slate-400'}`}></i>
+              <span className={`text-xs font-semibold ${selectedCategory === null ? 'text-blue-300' : 'text-slate-400'}`}>All</span>
             </button>
             {categories.map((cat: any) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all border ${
-                  selectedCategory === cat.id
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                    : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-slate-200'
-                }`}
+                className={`category-card flex-shrink-0 flex flex-col items-center gap-1.5 px-4 py-3 min-w-[72px] ${selectedCategory === cat.id ? 'active' : ''}`}
               >
-                <i className={`fas ${cat.icon} mr-1.5`}></i>
-                {cat.name}
+                <i className={`fas ${cat.icon} text-base ${selectedCategory === cat.id ? 'text-blue-400' : 'text-slate-400'}`}></i>
+                <span className={`text-xs font-semibold ${selectedCategory === cat.id ? 'text-blue-300' : 'text-slate-400'}`}>{cat.name}</span>
               </button>
             ))}
+          </div>
+
+          {/* Separator */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-500/25 to-transparent"></div>
+            <span className="text-[10px] font-bold text-blue-500/50 tracking-widest uppercase">Menu</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-500/25 to-transparent"></div>
           </div>
         </div>
 

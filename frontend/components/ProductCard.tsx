@@ -54,18 +54,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="font-semibold text-slate-100 text-sm leading-tight line-clamp-2 mb-1.5">
           {product.name}
         </p>
-        <div className="flex items-center justify-between">
-          <div>
-            {product.promoPrice && product.promoEnabled && (
-              <p className="text-xs text-slate-500 line-through leading-none">RM{product.price.toFixed(2)}</p>
-            )}
-            <p className={`text-sm font-bold ${product.promoEnabled && product.promoPrice ? 'text-amber-400' : 'text-amber-400'}`}>
-              RM{displayPrice.toFixed(2)}
-            </p>
-          </div>
-          <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${flash ? 'bg-amber-500 text-black' : 'bg-amber-500/15 text-amber-400'}`}>
-            <i className="fas fa-plus text-xs"></i>
-          </div>
+        <div>
+          {product.promoPrice && product.promoEnabled && (
+            <p className="text-xs text-slate-500 line-through leading-none">RM{product.price.toFixed(2)}</p>
+          )}
+          <p className="text-sm font-bold text-amber-400">
+            RM{displayPrice.toFixed(2)}
+          </p>
         </div>
       </div>
     </div>
