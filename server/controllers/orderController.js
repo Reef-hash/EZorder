@@ -78,11 +78,11 @@ async function createOrder(req, res) {
 async function updateOrder(req, res) {
   try {
     const { id } = req.params;
-    const { status, paymentMethod } = req.body;
+    const { status, paymentMethod, amountPaid, change } = req.body;
 
-    if (!status && !paymentMethod) {
+    if (!status && !paymentMethod && amountPaid == null && change == null) {
       return res.status(400).json({
-        message: 'status or paymentMethod is required.',
+        message: 'At least one field to update is required.',
       });
     }
 
@@ -96,6 +96,8 @@ async function updateOrder(req, res) {
     const updateData = {};
     if (status) updateData.status = status;
     if (paymentMethod) updateData.paymentMethod = paymentMethod;
+    if (amountPaid != null) updateData.amountPaid = amountPaid;
+    if (change != null) updateData.change = change;
 
     const updatedOrder = await orderModel.updateOrder(id, updateData, req.user._id);
 

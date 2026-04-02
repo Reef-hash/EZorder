@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { ordersAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 import ItemMarksSelector from './ItemMarksSelector'
 import PaymentModal from './modals/PaymentModal'
@@ -13,6 +14,8 @@ interface CurrentOrderBuilderProps {
 export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProps) {
   const {
     currentOrder,
+    orders,
+    setOrders,
     tables,
     setOrderType,
     setOrderTable,
@@ -24,6 +27,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
 
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [showPayment, setShowPayment] = useState(false)
+  const [servingLoading, setServingLoading] = useState(false)
 
   const subtotal = currentOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -35,6 +39,34 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
   const total = Math.max(0, subtotal - discountAmount)
 
   const canCheckout = currentOrder.items.length > 0
+
+  const handleServe = async () => {
+    setServingLoading(true)
+    try {
+      const { data } = await ordersAPI.create({
+        customerName: currentOrder.customerName,
+        items: currentOrder.items,
+        total,
+        marks: currentOrder.marks || [],
+        paymentMethod: null,
+        status: 'pending',
+        orderType: currentOrder.orderType,
+        tableName: currentOrder.tableName,
+        discount: currentOrder.discount,
+        discountType: currentOrder.discountType,
+        amountPaid: null,
+        change: null,
+      })
+      setOrders([data, ...orders])
+      clearCurrentOrder()
+      toast.success(`Bill ${data.customerName} queued!`)
+      onClose?.()
+    } catch {
+      toast.error('Failed to serve order')
+    } finally {
+      setServingLoading(false)
+    }
+  }
 
   const handleClear = () => {
     if (currentOrder.items.length === 0) return
@@ -252,9 +284,25 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
           </div>
 
           <button
+            onClick={handleServe}
+            disabled={!canCheckout || servingLoading}
+            className={`w-full py-2.5 text-sm font-bold rounded-xl border transition-all ${
+              canCheckout
+                ? 'border-blue-500/35 text-blue-400 bg-blue-500/10 hover:bg-blue-500/18 hover:border-blue-500/55'
+                : 'opacity-30 border-white/10 text-slate-500 cursor-not-allowed'
+            }`}
+          >
+            {servingLoading
+              ? <i className="fas fa-spinner fa-spin mr-2"></i>
+              : <i className="fas fa-bell mr-2"></i>
+            }
+            Serve Order
+          </button>
+
+          <button
             onClick={() => {
               if (!canCheckout) {
-                toast.error('Enter customer name and add items first')
+                toast.error('Add items first')
                 return
               }
               setShowPayment(true)
