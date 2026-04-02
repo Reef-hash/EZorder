@@ -16,6 +16,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleAdd = () => {
     addOrderItem({
+      lineId: '',
       id: product.id,
       name: product.name,
       price: displayPrice,
