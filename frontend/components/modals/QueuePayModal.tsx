@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ordersAPI } from '@/lib/api'
 import { useAppStore, Order } from '@/lib/store'
 import toast from 'react-hot-toast'
+import ReceiptModal from './ReceiptModal'
 
 interface Props {
   order: Order
@@ -16,6 +17,7 @@ export default function QueuePayModal({ order, onClose, onSuccess }: Props) {
   const [method, setMethod] = useState<'cash' | 'qr'>('cash')
   const [amountPaid, setAmountPaid] = useState('')
   const [loading, setLoading] = useState(false)
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null)
 
   const paid = parseFloat(amountPaid) || 0
   const change = method === 'cash' ? Math.max(0, paid - order.total) : 0
@@ -38,12 +40,16 @@ export default function QueuePayModal({ order, onClose, onSuccess }: Props) {
       })
       setOrders(orders.map(o => o.id === order.id ? updated : o))
       toast.success(`Bill ${order.customerName} — paid!`)
-      onSuccess()
+      setCompletedOrder(updated)
     } catch {
       toast.error('Failed to update order')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (completedOrder) {
+    return <ReceiptModal order={completedOrder} onClose={onSuccess} />
   }
 
   return (

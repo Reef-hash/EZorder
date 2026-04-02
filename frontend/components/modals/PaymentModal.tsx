@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, Order } from '@/lib/store'
 import { ordersAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
+import ReceiptModal from './ReceiptModal'
 
 interface PaymentModalProps {
   subtotal: number
@@ -18,6 +19,7 @@ export default function PaymentModal({ subtotal, discountAmount, total, onClose,
   const [method, setMethod] = useState<'cash' | 'qr'>('cash')
   const [amountPaid, setAmountPaid] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null)
 
   const paid = parseFloat(amountPaid) || 0
   const change = method === 'cash' ? Math.max(0, paid - total) : 0
@@ -31,7 +33,7 @@ export default function PaymentModal({ subtotal, discountAmount, total, onClose,
 
     setLoading(true)
     try {
-      await ordersAPI.create({
+      const { data } = await ordersAPI.create({
         customerName: currentOrder.customerName,
         items: currentOrder.items,
         total,
@@ -48,12 +50,16 @@ export default function PaymentModal({ subtotal, discountAmount, total, onClose,
 
       clearCurrentOrder()
       toast.success('Order completed!')
-      onSuccess()
+      setCompletedOrder(data)
     } catch {
       toast.error('Failed to save order')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (completedOrder) {
+    return <ReceiptModal order={completedOrder} onClose={onSuccess} />
   }
 
   return (

@@ -346,3 +346,43 @@ html:not(.dark) .border-slate-700 { border-color: rgba(245,158,11,0.2) !importan
 html:not(.dark) .divide-slate-700\/30 > * + * { border-color: rgba(245,158,11,0.12) !important; }
 
 /* stylelint-enable */
+
+/* ─── PRINT — Receipt ───────────────────────────── */
+@media print {
+  /* Hide everything */
+  body * { visibility: hidden !important; }
+
+  /* Show only receipt area */
+  #receipt-print-area,
+  #receipt-print-area * {
+    visibility: visible !important;
+    display: block !important;
+  }
+  #receipt-print-area {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    padding: 4mm 5mm !important;
+    margin: 0 !important;
+    background: white !important;
+    color: black !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  /* Hide the .hidden utility (we use it to hide the print div on screen) */
+  #receipt-print-area.hidden { display: block !important; }
+
+  /* Flex rows in receipt */
+  #receipt-print-area .flex {
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+  #receipt-print-area .text-center { text-align: center !important; }
+  #receipt-print-area .border-t { border-top: 1px dashed #999 !important; }
+  #receipt-print-area .my-1\.5 { margin-top: 4px !important; margin-bottom: 4px !important; }
+}
