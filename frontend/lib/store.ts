@@ -60,6 +60,7 @@ export interface OrderItem {
   id: string
   name: string
   price: number
+  costPrice?: number | null
   quantity: number
   marks: string[]
 }
@@ -118,6 +119,25 @@ export interface Table {
   seats: number
   status: 'available' | 'occupied'
   createdAt: string
+}
+
+export interface Expense {
+  id: string
+  date: string
+  category: 'Utilities' | 'Salary' | 'Supplies' | 'Maintenance' | 'Rent' | 'Others'
+  description: string
+  amount: number
+  paymentMethod: 'cash' | 'bank_transfer'
+  createdAt: string
+}
+
+export interface ProfitLoss {
+  revenue: number
+  cogs: number
+  opex: number
+  grossProfit: number
+  netProfit: number
+  orderCount: number
 }
 
 export interface User {

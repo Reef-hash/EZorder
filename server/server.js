@@ -13,6 +13,8 @@ import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import tableRoutes from './routes/tableRoutes.js';
 import printerRoutes from './routes/printerRoutes.js';
+import expenseRoutes from './routes/expenseRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 import { adminMiddleware } from './middleware/adminMiddleware.js';
 import { startExpiryReminderCron } from './cron/expiryReminder.js';
@@ -81,6 +83,8 @@ app.use('/api/marks', apiLimiter, authMiddleware, markRoutes);
 app.use('/api/categories', apiLimiter, authMiddleware, categoryRoutes);
 app.use('/api/tables', apiLimiter, authMiddleware, tableRoutes);
 app.use('/api/printer', apiLimiter, authMiddleware, printerRoutes);
+app.use('/api/expenses', apiLimiter, authMiddleware, expenseRoutes);
+app.use('/api/reports', apiLimiter, authMiddleware, reportRoutes);
 
 // One-time admin setup via env var (safe: only runs on server startup)
 async function setupAdminIfNeeded() {

@@ -9,14 +9,16 @@ import OrderTab from '@/components/tabs/OrderTab'
 import ManageTab from '@/components/tabs/ManageTab'
 import QueueTab from '@/components/tabs/QueueTab'
 import SalesTab from '@/components/tabs/SalesTab'
+import ExpensesTab from '@/components/tabs/ExpensesTab'
 
-type ViewType = 'pos' | 'queue' | 'reports' | 'manage'
+type ViewType = 'pos' | 'queue' | 'reports' | 'expenses' | 'manage'
 
 const NAV_ITEMS: { id: ViewType; icon: string; label: string }[] = [
-  { id: 'pos',     icon: 'fa-cash-register', label: 'POS'     },
-  { id: 'queue',   icon: 'fa-bell',          label: 'Queue'   },
-  { id: 'reports', icon: 'fa-chart-bar',     label: 'Reports' },
-  { id: 'manage',  icon: 'fa-cog',           label: 'Setup'   },
+  { id: 'pos',      icon: 'fa-cash-register', label: 'POS'        },
+  { id: 'queue',    icon: 'fa-bell',          label: 'Queue'      },
+  { id: 'reports',  icon: 'fa-chart-bar',     label: 'Reports'    },
+  { id: 'expenses', icon: 'fa-wallet',        label: 'Perbelanjaan' },
+  { id: 'manage',   icon: 'fa-cog',           label: 'Setup'      },
 ]
 
 export default function DashboardPage() {
@@ -99,6 +101,7 @@ export default function DashboardPage() {
           {view === 'pos'     && <OrderTab />}
           {view === 'queue'   && <QueueTab />}
           {view === 'reports' && <SalesTab />}
+          {view === 'expenses' && <ExpensesTab />}
           {view === 'manage'  && (
             <div className="flex-1 overflow-y-auto p-4 md:p-6">
               <ManageTab />

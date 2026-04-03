@@ -106,4 +106,25 @@ export const tablesAPI = {
   delete: (id: string) => api.delete(`/api/tables/${id}`),
 }
 
+// Expenses
+export const expensesAPI = {
+  getAll: (params?: { from?: string; to?: string }) => api.get('/api/expenses', { params }),
+  create: (data: any) => api.post('/api/expenses', data),
+  delete: (id: string) => api.delete(`/api/expenses/${id}`),
+}
+
+// Reports
+export const reportsAPI = {
+  profitLoss: (params?: { from?: string; to?: string }) =>
+    api.get('/api/reports/profit-loss', { params }),
+  exportUrl: (from?: string, to?: string) => {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
+    const q = new URLSearchParams()
+    if (from) q.set('from', from)
+    if (to) q.set('to', to)
+    return `${base}/api/reports/export?${q.toString()}`
+  },
+}
+
 export default api

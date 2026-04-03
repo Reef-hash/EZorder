@@ -4,6 +4,7 @@ const orderItemSchema = new mongoose.Schema({
   id: String,
   name: { type: String, required: true },
   price: { type: Number, required: true },
+  costPrice: { type: Number, default: null }, // snapshot at order time for accurate COGS history
   quantity: { type: Number, required: true, min: 1 },
   marks: [String],
 }, { _id: false });
