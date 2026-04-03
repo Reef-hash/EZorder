@@ -11,8 +11,9 @@ import MarkForm from '@/components/forms/MarkForm'
 import ProductsList from '@/components/lists/ProductsList'
 import CategoriesList from '@/components/lists/CategoriesList'
 import MarksList from '@/components/lists/MarksList'
+import PrinterSettings from '@/components/PrinterSettings'
 
-type ManageSection = 'products' | 'categories' | 'tables'
+type ManageSection = 'products' | 'categories' | 'tables' | 'printer'
 
 export default function ManageTab() {
   const { loadProducts, loadCategories, loadMarks, loadTables } = useData()
@@ -79,6 +80,7 @@ export default function ManageTab() {
     { id: 'products',   icon: 'fa-box',        label: 'Products'   },
     { id: 'categories', icon: 'fa-folder',     label: 'Categories & Marks' },
     ...(user?.businessType !== 'retail' ? [{ id: 'tables' as ManageSection, icon: 'fa-chair', label: 'Tables' }] : []),
+    { id: 'printer',    icon: 'fa-print',      label: 'Printer'    },
   ]
 
   return (
@@ -159,6 +161,14 @@ export default function ManageTab() {
             <h2 className="text-2xl font-bold gradient-text mb-6">Your Marks</h2>
             <MarksList onDeleted={handleMarkAdded} />
           </div>
+        </div>
+      )}
+
+      {/* Printer Section */}
+      {activeSection === 'printer' && (
+        <div className="glass-effect rounded-2xl p-6 border border-slate-700/50">
+          <h2 className="text-2xl font-bold gradient-text mb-6">Thermal Printer</h2>
+          <PrinterSettings />
         </div>
       )}
 

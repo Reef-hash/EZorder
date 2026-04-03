@@ -1,4 +1,42 @@
 import { create } from 'zustand'
+import type { PaperSize, ConnectionType } from './printer/PrinterService'
+
+export interface PrinterConfig {
+  enabled: boolean
+  connectionType: ConnectionType
+  paperSize: PaperSize
+  printerAddress: string   // BT MAC / IP:port / USB deviceId
+  printerName: string
+  autoPrint: boolean
+}
+
+const PRINTER_CONFIG_KEY = 'ez_printer_config'
+
+function loadPrinterConfig(): PrinterConfig {
+  if (typeof window === 'undefined') return defaultPrinterConfig()
+  try {
+    const raw = localStorage.getItem(PRINTER_CONFIG_KEY)
+    if (raw) return { ...defaultPrinterConfig(), ...JSON.parse(raw) }
+  } catch { /* ignore */ }
+  return defaultPrinterConfig()
+}
+
+function defaultPrinterConfig(): PrinterConfig {
+  return {
+    enabled: false,
+    connectionType: 'bluetooth',
+    paperSize: '80mm',
+    printerAddress: '',
+    printerName: '',
+    autoPrint: false,
+  }
+}
+
+function savePrinterConfig(config: PrinterConfig) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(PRINTER_CONFIG_KEY, JSON.stringify(config))
+  }
+}
 
 function fmt(n: number) {
   return `#${String(n).padStart(4, '0')}`
@@ -144,6 +182,11 @@ interface AppStore {
 
   // Table actions
   setTables: (tables: Table[]) => void
+
+  // Printer config
+  printerConfig: PrinterConfig
+  setPrinterConfig: (config: Partial<PrinterConfig>) => void
+  clearPrinterConfig: () => void
 }
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -154,6 +197,7 @@ export const useAppStore = create<AppStore>((set) => ({
   categories: [],
   tables: [],
   orderCounter: loadCounter(),
+  printerConfig: loadPrinterConfig(),
   currentOrder: {
     customerName: fmt(loadCounter()),
     items: [],
@@ -331,4 +375,17 @@ export const useAppStore = create<AppStore>((set) => ({
   selectCategory: (categoryId) => set({ selectedCategory: categoryId }),
 
   setTables: (tables) => set({ tables }),
+
+  setPrinterConfig: (partial) =>
+    set((state) => {
+      const next = { ...state.printerConfig, ...partial }
+      savePrinterConfig(next)
+      return { printerConfig: next }
+    }),
+
+  clearPrinterConfig: () => {
+    const reset = defaultPrinterConfig()
+    savePrinterConfig(reset)
+    set({ printerConfig: reset })
+  },
 }))

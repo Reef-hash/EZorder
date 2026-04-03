@@ -362,7 +362,8 @@ html:not(.dark) .divide-slate-700\/30 > * + * { border-color: rgba(245,158,11,0.
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
-    width: 80mm !important;
+    /* Default 80mm — overridden per paper size below */
+    width: var(--receipt-paper-size, 80mm) !important;
     padding: 4mm 5mm !important;
     margin: 0 !important;
     background: white !important;
@@ -374,6 +375,15 @@ html:not(.dark) .divide-slate-700\/30 > * + * { border-color: rgba(245,158,11,0.
     max-height: none !important;
     overflow: visible !important;
   }
+  /* Paper size variants */
+  #receipt-print-area[data-paper="58mm"]  { width: 58mm !important;  }
+  #receipt-print-area[data-paper="76mm"]  { width: 76mm !important;  font-size: 11px !important; }
+  #receipt-print-area[data-paper="80mm"]  { width: 80mm !important;  }
+  #receipt-print-area[data-paper="110mm"] { width: 110mm !important; font-size: 12px !important; }
+
+  /* @page size driven by paper — JS sets body data attr, CSS reads it */
+  @page { margin: 0; size: var(--receipt-paper-size, 80mm) auto; }
+
   /* Hide the .hidden utility (we use it to hide the print div on screen) */
   #receipt-print-area.hidden { display: block !important; }
 

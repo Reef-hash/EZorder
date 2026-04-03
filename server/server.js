@@ -9,6 +9,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import tableRoutes from './routes/tableRoutes.js';
+import printerRoutes from './routes/printerRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 import { adminMiddleware } from './middleware/adminMiddleware.js';
 
@@ -41,6 +42,7 @@ app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/marks', authMiddleware, markRoutes);
 app.use('/api/categories', authMiddleware, categoryRoutes);
 app.use('/api/tables', authMiddleware, tableRoutes);
+app.use('/api/printer', authMiddleware, printerRoutes);
 
 // One-time admin setup via env var (safe: only runs on server startup)
 async function setupAdminIfNeeded() {

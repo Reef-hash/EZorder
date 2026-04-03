@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore, Order } from '@/lib/store'
 import { ordersAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 import ReceiptModal from './ReceiptModal'
+import { generateReceipt } from '@/lib/printer/escpos'
+import { getPrinterService } from '@/lib/printer/PrinterServiceFactory'
 
 interface PaymentModalProps {
   subtotal: number
@@ -15,11 +17,33 @@ interface PaymentModalProps {
 }
 
 export default function PaymentModal({ subtotal, discountAmount, total, onClose, onSuccess }: PaymentModalProps) {
-  const { currentOrder, clearCurrentOrder } = useAppStore()
+  const { currentOrder, clearCurrentOrder, printerConfig, user } = useAppStore()
   const [method, setMethod] = useState<'cash' | 'qr'>('cash')
   const [amountPaid, setAmountPaid] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null)
+  const [autoPrinted, setAutoPrinted] = useState(false)
+
+  // Auto-print when order completes and autoPrint is on
+  useEffect(() => {
+    if (!completedOrder || autoPrinted) return
+    if (!printerConfig.enabled || !printerConfig.autoPrint || !printerConfig.printerAddress) return
+    setAutoPrinted(true)
+    const run = async () => {
+      try {
+        const service = getPrinterService(printerConfig.connectionType)
+        if (!service.isConnected()) await service.connect(printerConfig.printerAddress)
+        const data = generateReceipt(completedOrder, user?.businessName || 'My Business', printerConfig.paperSize)
+        await service.print(data)
+        toast.success('Receipt printed!')
+        onSuccess()
+      } catch (err: any) {
+        toast.error(err.message || 'Auto-print failed')
+        // Fall through to show ReceiptModal normally
+      }
+    }
+    run()
+  }, [completedOrder, autoPrinted, printerConfig, user, onSuccess])
 
   const paid = parseFloat(amountPaid) || 0
   const change = method === 'cash' ? Math.max(0, paid - total) : 0

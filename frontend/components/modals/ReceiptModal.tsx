@@ -1,6 +1,10 @@
 ﻿'use client'
 
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useAppStore, Order } from '@/lib/store'
+import { generateReceipt } from '@/lib/printer/escpos'
+import { getPrinterService } from '@/lib/printer/PrinterServiceFactory'
 
 interface Props {
   order: Order
@@ -8,7 +12,8 @@ interface Props {
 }
 
 export default function ReceiptModal({ order, onClose }: Props) {
-  const { user } = useAppStore()
+  const { user, printerConfig } = useAppStore()
+  const [printing, setPrinting] = useState(false)
 
   const date = new Date(order.createdAt)
   const dateStr = date.toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -20,7 +25,32 @@ export default function ReceiptModal({ order, onClose }: Props) {
       ? (subtotal * (order.discount || 0)) / 100
       : (order.discount || 0)
 
-  const handlePrint = () => {
+  /** Direct ESC/POS print via connected thermal printer */
+  const handleDirectPrint = async () => {
+    if (!printerConfig.enabled || !printerConfig.printerAddress) {
+      // Fallback: browser print dialog
+      handleBrowserPrint()
+      return
+    }
+    setPrinting(true)
+    try {
+      const service = getPrinterService(printerConfig.connectionType)
+      if (!service.isConnected()) {
+        await service.connect(printerConfig.printerAddress)
+      }
+      const data = generateReceipt(order, user?.businessName || 'My Business', printerConfig.paperSize)
+      await service.print(data)
+      toast.success('Receipt printed!')
+    } catch (err: any) {
+      toast.error(err.message || 'Print failed — trying browser print…')
+      handleBrowserPrint()
+    } finally {
+      setPrinting(false)
+    }
+  }
+
+  /** Fallback: browser window.print() with 80mm/paper-size page */
+  const handleBrowserPrint = () => {
     const w = window.open('', '_blank', 'width=400,height=700')
     if (!w) return
 
@@ -49,14 +79,14 @@ export default function ReceiptModal({ order, onClose }: Props) {
   <title>Receipt</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Courier New',monospace; font-size:12px; width:80mm; padding:5mm; color:#000; }
+    body { font-family:'Courier New',monospace; font-size:12px; width:${printerConfig.paperSize}; padding:5mm; color:#000; }
     table { width:100%; border-collapse:collapse; }
     hr.d { border:none; border-top:1px dashed #999; margin:5px 0; }
     .c { text-align:center; }
     .b { font-weight:bold; }
     .big { font-size:14px; }
     .sm { font-size:10px; color:#555; }
-    @media print { @page { margin:0; size:80mm auto; } body { padding:3mm; } }
+    @media print { @page { margin:0; size:${printerConfig.paperSize} auto; } body { padding:3mm; } }
   </style>
 </head><body>
   <div class="c"><p class="b big">${user?.businessName || 'My Business'}</p><p class="sm">Powered by EZOrder</p></div>
@@ -130,8 +160,13 @@ export default function ReceiptModal({ order, onClose }: Props) {
         </div>
 
         <div className="px-4 pb-4 flex gap-3">
-          <button onClick={handlePrint} className="flex-1 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm transition">
-            <i className="fas fa-print mr-2"></i>Print
+          <button
+            onClick={handleDirectPrint}
+            disabled={printing}
+            className="flex-1 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm transition disabled:opacity-40 flex items-center justify-center gap-2"
+          >
+            <i className={`fas ${printing ? 'fa-spinner fa-spin' : 'fa-print'}`}></i>
+            {printing ? 'Printing…' : printerConfig.enabled && printerConfig.printerAddress ? 'Print Receipt' : 'Browser Print'}
           </button>
           <button onClick={onClose} className="py-3 px-5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 rounded-xl font-semibold text-sm transition">
             Skip
