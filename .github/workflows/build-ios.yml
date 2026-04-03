@@ -7,6 +7,8 @@ jobs:
   build-ios:
     name: Build iOS IPA
     runs-on: macos-latest   # macOS runner — required for Xcode
+    env:
+      HAS_APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────
@@ -71,7 +73,7 @@ jobs:
       #    APPLE_PROVISIONING_PROFILE — mobileprovision file (base64)
       #    APPLE_TEAM_ID              — e.g. ABCD123456
       - name: Install Apple certificate & provisioning profile
-        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        if: env.HAS_APPLE_CERT == 'true'
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -97,7 +99,7 @@ jobs:
           rm certificate.p12 profile.mobileprovision
 
       - name: Archive iOS app (signed)
-        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        if: env.HAS_APPLE_CERT == 'true'
         working-directory: frontend/ios
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -113,7 +115,7 @@ jobs:
             -allowProvisioningUpdates
 
       - name: Export IPA
-        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        if: env.HAS_APPLE_CERT == 'true'
         working-directory: frontend/ios
         run: |
           cat > ExportOptions.plist << 'EOF'
@@ -146,7 +148,7 @@ jobs:
           retention-days: 14
 
       - name: Upload IPA
-        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        if: env.HAS_APPLE_CERT == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: EZOrder-ios-${{ github.sha }}.ipa
