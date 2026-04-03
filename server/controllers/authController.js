@@ -164,6 +164,9 @@ export async function resetBillCounter(req, res) {
     res.status(500).json({ message: 'Failed to reset counter' });
   }
 }
+
+// GET /api/auth/me
+export async function getMe(req, res) {
   res.json({
     id: req.user._id,
     email: req.user.email,
