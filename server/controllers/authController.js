@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import validator from 'validator';
 import { Resend } from 'resend';
 import User from '../models/userModel.js';
 
@@ -18,6 +19,9 @@ export async function register(req, res) {
 
     if (!businessName || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
     }
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
@@ -86,13 +90,15 @@ export async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email required' });
+    if (!validator.isEmail(email)) return res.status(400).json({ message: 'Invalid email format' });
 
     const user = await User.findOne({ email });
     // Always return success (don't reveal if email exists)
     if (!user) return res.json({ message: 'If that email exists, a reset link has been sent' });
 
     const token = crypto.randomBytes(32).toString('hex');
-    user.resetToken = token;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    user.resetToken = tokenHash; // store hash — never the raw token
     user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
 
@@ -129,8 +135,9 @@ export async function resetPassword(req, res) {
     if (!token || !password) return res.status(400).json({ message: 'Token and password required' });
     if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
 
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
-      resetToken: token,
+      resetToken: tokenHash,
       resetTokenExpiry: { $gt: new Date() },
     });
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAppStore, Order } from '@/lib/store'
+import { useAppStore, Order, Product } from '@/lib/store'
 import { useData } from '@/lib/hooks/useData'
 
 type Period = 'today' | 'week' | 'month' | 'all'
@@ -27,6 +27,17 @@ function isThisMonth(date: Date) {
 
 function sumRevenue(arr: Order[]) {
   return arr.reduce((t, o) => t + o.total, 0)
+}
+
+function sumCOGS(arr: Order[], productMap: Map<string, Product>) {
+  return arr.reduce((total, order) => {
+    const cogs = order.items.reduce((s, item) => {
+      const product = productMap.get(item.id)
+      const cost = product?.costPrice ?? 0
+      return s + cost * item.quantity
+    }, 0)
+    return total + cogs
+  }, 0)
 }
 
 function avgOrderValue(arr: Order[]) {
@@ -74,11 +85,14 @@ const PERIODS: { id: Period; label: string }[] = [
 ]
 
 export default function SalesTab() {
-  const { orders } = useAppStore()
+  const { orders, products } = useAppStore()
   const { loadOrders } = useData()
   const [period, setPeriod] = useState<Period>('today')
 
   useEffect(() => { loadOrders() }, [])
+
+  const productMap = new Map(products.map(p => [p.id, p]))
+  const hasCostData = products.some(p => p.costPrice != null)
 
   const now = new Date()
   const completed = orders.filter(o => o.status === 'completed')
@@ -94,6 +108,8 @@ export default function SalesTab() {
 
   const filtered_revenue = sumRevenue(filtered)
   const filtered_avg = avgOrderValue(filtered)
+  const filtered_cogs = sumCOGS(filtered, productMap)
+  const filtered_profit = filtered_revenue - filtered_cogs
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
@@ -150,6 +166,28 @@ export default function SalesTab() {
           <p className="text-[10px] text-slate-500">{filtered.length} orders · avg RM{filtered_avg.toFixed(2)}</p>
         </div>
       </div>
+
+      {/* Profit/Loss summary */}
+      {hasCostData && (
+        <div className="flex items-center gap-3 bg-white/3 border border-white/8 rounded-xl px-4 py-3">
+          <div className="flex-1">
+            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Revenue</p>
+            <p className="text-sm font-bold text-amber-400">RM{filtered_revenue.toFixed(2)}</p>
+          </div>
+          <div className="text-slate-600">−</div>
+          <div className="flex-1">
+            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Cost of Goods</p>
+            <p className="text-sm font-bold text-slate-400">RM{filtered_cogs.toFixed(2)}</p>
+          </div>
+          <div className="text-slate-600">=</div>
+          <div className="flex-1">
+            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Gross Profit</p>
+            <p className={`text-sm font-bold ${filtered_profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {filtered_profit >= 0 ? '+' : ''}RM{filtered_profit.toFixed(2)}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Orders list */}
       {filtered.length === 0 ? (

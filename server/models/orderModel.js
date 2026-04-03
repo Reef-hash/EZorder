@@ -41,8 +41,12 @@ function generateWhatsAppMessage(customerName, items, total) {
   return `Hi ${customerName},\n\nYour order:\n${itemsList}\n\nTotal: RM${total.toFixed(2)}\n\nThank you!`;
 }
 
-async function getAllOrders(userId) {
-  const docs = await Order.find({ userId }).sort({ createdAt: -1 });
+async function getAllOrders(userId, { page = 1, limit = 100 } = {}) {
+  const skip = (page - 1) * limit;
+  const docs = await Order.find({ userId })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
   return docs.map(toPlain);
 }
 

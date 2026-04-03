@@ -70,12 +70,27 @@ async function deductStock(items, userId) {
   for (const item of items) {
     if (item.id) qtyMap[item.id] = (qtyMap[item.id] || 0) + item.quantity;
   }
-  for (const [productId, qty] of Object.entries(qtyMap)) {
-    await Product.updateOne(
-      { _id: productId, userId, trackStock: true, stockQty: { $gte: 0 } },
-      { $inc: { stockQty: -qty } }
-    );
+  const ops = Object.entries(qtyMap).map(([productId, qty]) => ({
+    updateOne: {
+      filter: { _id: productId, userId, trackStock: true, stockQty: { $gte: 0 } },
+      update: { $inc: { stockQty: -qty } },
+    },
+  }));
+  if (ops.length) await Product.bulkWrite(ops);
+}
+
+async function restoreStock(items, userId) {
+  const qtyMap = {};
+  for (const item of items) {
+    if (item.id) qtyMap[item.id] = (qtyMap[item.id] || 0) + item.quantity;
   }
+  const ops = Object.entries(qtyMap).map(([productId, qty]) => ({
+    updateOne: {
+      filter: { _id: productId, userId, trackStock: true },
+      update: { $inc: { stockQty: qty } },
+    },
+  }));
+  if (ops.length) await Product.bulkWrite(ops);
 }
 
 async function adjustStock(productId, adjustment, userId) {
@@ -106,5 +121,6 @@ export {
   deleteProduct,
   getProductsByCategory,
   deductStock,
+  restoreStock,
   adjustStock,
 };

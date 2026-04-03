@@ -49,10 +49,17 @@ async function createOrder(req, res) {
       }
     }
 
+    // Recalculate total server-side — do not trust client-supplied total
+    const rawTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discountAmt = discountType === 'percent'
+      ? rawTotal * ((parseFloat(discount) || 0) / 100)
+      : parseFloat(discount) || 0;
+    const calculatedTotal = Math.max(0, rawTotal - discountAmt);
+
     const newOrder = await orderModel.addOrder({
       customerName: customerName.trim(),
       items,
-      total: parseFloat(total),
+      total: calculatedTotal,
       marks: Array.isArray(marks) ? marks : [],
       paymentMethod: paymentMethod || null,
       status: status || 'pending',
@@ -109,6 +116,14 @@ async function updateOrder(req, res) {
       const existingOrder = await orderModel.getOrderById(id, req.user._id);
       if (existingOrder && existingOrder.status !== 'completed') {
         await productModel.deductStock(existingOrder.items, req.user._id).catch(console.error);
+      }
+    }
+
+    // Restore stock if order is being cancelled (was previously completed)
+    if (status === 'cancelled') {
+      const existingOrder = await orderModel.getOrderById(id, req.user._id);
+      if (existingOrder && existingOrder.status === 'completed') {
+        await productModel.restoreStock(existingOrder.items, req.user._id).catch(console.error);
       }
     }
 

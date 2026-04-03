@@ -6,6 +6,7 @@ import { Order } from '@/lib/store'
 import { ordersAPI } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import ReceiptModal from '@/components/modals/ReceiptModal'
 
 interface OrderCardProps {
   order: Order
@@ -15,6 +16,7 @@ interface OrderCardProps {
 export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
   const { marks } = useAppStore()
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showReceipt, setShowReceipt] = useState(false)
 
   const statusColors = {
     pending: 'text-amber-400 bg-amber-500/20',
@@ -123,7 +125,21 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
             </button>
           </>
         )}
+        {order.status === 'completed' && (
+          <button
+            onClick={() => setShowReceipt(true)}
+            className="flex-1 bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 py-2 rounded text-sm font-semibold transition flex items-center justify-center gap-1"
+          >
+            <i className="fas fa-print"></i>
+            Reprint Receipt
+          </button>
+        )}
       </div>
+
+      {/* Reprint Receipt Modal */}
+      {showReceipt && (
+        <ReceiptModal order={order} onClose={() => setShowReceipt(false)} />
+      )}
 
       {/* Payment Modal */}
       {showPaymentModal && (

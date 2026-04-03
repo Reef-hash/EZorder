@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
 import dotenv from 'dotenv';
 import { connectDB } from './db.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -18,15 +21,48 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Security headers
+app.use(helmet());
+
+// CORS — restrict to known origins only
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3001',
+  'http://localhost:3000',
+].filter(Boolean);
+
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    // Allow no-origin requests (Render health checks, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
-app.use(express.json());
 
-// Public routes (no auth needed)
-app.use('/api/auth', authRoutes);
+// Rate limiters
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 20,
+  message: { message: 'Too many attempts, please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 min
+  max: 200,
+  message: { message: 'Too many requests, slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(express.json());
+// Strip MongoDB operators from user input ($where, $gt etc)
+app.use(mongoSanitize());
+
+// Public routes — rate limited
+app.use('/api/auth', authLimiter, authRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -36,13 +72,13 @@ app.get('/health', (req, res) => {
 // Admin routes (require JWT + admin role)
 app.use('/api/admin', authMiddleware, adminMiddleware, adminRoutes);
 
-// Protected API Routes (require JWT)
-app.use('/api/orders', authMiddleware, orderRoutes);
-app.use('/api/products', authMiddleware, productRoutes);
-app.use('/api/marks', authMiddleware, markRoutes);
-app.use('/api/categories', authMiddleware, categoryRoutes);
-app.use('/api/tables', authMiddleware, tableRoutes);
-app.use('/api/printer', authMiddleware, printerRoutes);
+// Protected API Routes (require JWT + general rate limit)
+app.use('/api/orders', apiLimiter, authMiddleware, orderRoutes);
+app.use('/api/products', apiLimiter, authMiddleware, productRoutes);
+app.use('/api/marks', apiLimiter, authMiddleware, markRoutes);
+app.use('/api/categories', apiLimiter, authMiddleware, categoryRoutes);
+app.use('/api/tables', apiLimiter, authMiddleware, tableRoutes);
+app.use('/api/printer', apiLimiter, authMiddleware, printerRoutes);
 
 // One-time admin setup via env var (safe: only runs on server startup)
 async function setupAdminIfNeeded() {

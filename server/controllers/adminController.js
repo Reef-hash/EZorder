@@ -27,22 +27,33 @@ export async function getStats(req, res) {
 // GET /api/admin/users
 export async function getUsers(req, res) {
   try {
-    const { search, plan } = req.query;
+    const { search, plan, page } = req.query;
     const filter = {};
 
     if (search) {
+      // Escape regex special chars to prevent ReDoS
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { email: { $regex: search, $options: 'i' } },
-        { businessName: { $regex: search, $options: 'i' } },
+        { email: { $regex: escaped, $options: 'i' } },
+        { businessName: { $regex: escaped, $options: 'i' } },
       ];
     }
     if (plan) filter.plan = plan;
 
-    const users = await User.find(filter)
-      .select('-password -resetToken -resetTokenExpiry')
-      .sort({ createdAt: -1 });
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limit = 50;
+    const skip = (pageNum - 1) * limit;
 
-    res.json(users);
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .select('-password -resetToken -resetTokenExpiry')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments(filter),
+    ]);
+
+    res.json({ users, total, page: pageNum, pages: Math.ceil(total / limit) });
   } catch (error) {
     res.status(500).json({ message: 'Failed to load users' });
   }

@@ -1,17 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 import toast from 'react-hot-toast'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const expired = searchParams.get('expired') === '1'
 
   useEffect(() => {
     if (user) router.push('/dashboard')
@@ -36,6 +39,13 @@ export default function LoginPage() {
       <div className="glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl border border-slate-700/50">
         <h1 className="text-4xl font-bold mb-2 text-center gradient-text">EZOrder</h1>
         <p className="text-center text-slate-400 mb-8">Professional Order Management System</p>
+
+        {expired && (
+          <div className="mb-6 p-3 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 text-sm text-center">
+            <i className="fas fa-exclamation-triangle mr-1.5"></i>
+            Your subscription has expired. Please contact support to renew.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -82,6 +92,14 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }
 
