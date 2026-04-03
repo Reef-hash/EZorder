@@ -94,6 +94,28 @@ export default function SalesTab() {
   const productMap = new Map(products.map(p => [p.id, p]))
   const hasCostData = products.some(p => p.costPrice != null)
 
+  const exportCSV = (data: Order[], label: string) => {
+    const rows = [
+      ['Date', 'Bill', 'Items', 'Payment', 'Discount', 'Total (RM)'],
+      ...data.map(o => [
+        new Date(o.createdAt).toLocaleString('en-MY'),
+        o.customerName,
+        o.items.map(i => `${i.name} x${i.quantity}`).join(' | '),
+        o.paymentMethod || '',
+        o.discount ? `${o.discountType === 'percent' ? o.discount + '%' : 'RM' + o.discount}` : '',
+        o.total.toFixed(2),
+      ]),
+    ]
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `sales_${label}_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const now = new Date()
   const completed = orders.filter(o => o.status === 'completed')
 
@@ -114,12 +136,22 @@ export default function SalesTab() {
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <i className="fas fa-chart-bar text-amber-400 text-base"></i>
-          Sales Report
-        </h2>
-        <p className="text-xs text-slate-500 mt-0.5">Completed orders only</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <i className="fas fa-chart-bar text-amber-400 text-base"></i>
+            Sales Report
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">Completed orders only</p>
+        </div>
+        <button
+          onClick={() => exportCSV(filtered, period)}
+          disabled={filtered.length === 0}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-400 hover:text-white hover:border-amber-500/30 transition disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+        >
+          <i className="fas fa-download"></i>
+          CSV
+        </button>
       </div>
 
       {/* Summary cards */}

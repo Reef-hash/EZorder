@@ -1,12 +1,8 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import validator from 'validator';
-import { Resend } from 'resend';
 import User from '../models/userModel.js';
-
-function getResend() {
-  return new Resend(process.env.RESEND_API_KEY);
-}
+import { sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService.js';
 
 function generateToken(userId) {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -32,6 +28,9 @@ export async function register(req, res) {
 
     const user = await User.create({ businessName, email, password });
     const token = generateToken(user._id);
+
+    // Send welcome email (non-blocking — don't let email failure break registration)
+    sendWelcomeEmail({ to: email, businessName, trialExpiry: user.trialExpiry }).catch(console.error);
 
     res.status(201).json({
       token,
@@ -104,22 +103,7 @@ export async function forgotPassword(req, res) {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    await getResend().emails.send({
-      from: 'EZOrder <onboarding@resend.dev>',
-      to: email,
-      subject: 'Reset your EZOrder password',
-      html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-          <h2 style="color:#10b981">EZOrder</h2>
-          <p>Hi ${user.businessName},</p>
-          <p>Kami terima permintaan reset password untuk akaun anda.</p>
-          <a href="${resetUrl}" style="display:inline-block;background:#10b981;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0">
-            Reset Password
-          </a>
-          <p style="color:#666;font-size:14px">Link ini akan tamat dalam 1 jam. Jika anda tidak buat permintaan ini, abaikan email ini.</p>
-        </div>
-      `,
-    });
+    await sendPasswordResetEmail({ to: email, businessName: user.businessName, resetUrl });
 
     res.json({ message: 'If that email exists, a reset link has been sent' });
   } catch (error) {
@@ -155,8 +139,31 @@ export async function resetPassword(req, res) {
   }
 }
 
-// GET /api/auth/me
-export async function getMe(req, res) {
+// GET /api/auth/next-bill
+// Returns the current counter value then increments it atomically
+export async function getNextBill(req, res) {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $inc: { billCounter: 1 } },
+      { new: false } // return the value BEFORE increment
+    );
+    res.json({ counter: user.billCounter ?? 1 });
+  } catch (error) {
+    console.error('getNextBill error:', error);
+    res.status(500).json({ message: 'Failed to get bill counter' });
+  }
+}
+
+// PATCH /api/auth/reset-bill
+export async function resetBillCounter(req, res) {
+  try {
+    await User.findByIdAndUpdate(req.user._id, { $set: { billCounter: 1 } });
+    res.json({ counter: 1 });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to reset counter' });
+  }
+}
   res.json({
     id: req.user._id,
     email: req.user.email,
@@ -165,6 +172,10 @@ export async function getMe(req, res) {
     role: req.user.role,
     businessType: req.user.businessType || 'restaurant',
     trialExpiry: req.user.trialExpiry,
+    subscriptionExpiry: req.user.subscriptionExpiry || null,
+    phone: req.user.phone || '',
+    address: req.user.address || '',
+    receiptFooter: req.user.receiptFooter || '',
     isActive: req.user.isActive(),
   });
 }
@@ -172,13 +183,18 @@ export async function getMe(req, res) {
 // PATCH /api/auth/profile
 export async function updateProfile(req, res) {
   try {
-    const { businessType } = req.body;
-    const valid = ['restaurant', 'retail', 'both'];
-    if (businessType && !valid.includes(businessType)) {
+    const { businessType, businessName, phone, address, receiptFooter } = req.body;
+    const validTypes = ['restaurant', 'retail', 'both'];
+    if (businessType && !validTypes.includes(businessType)) {
       return res.status(400).json({ message: 'Invalid businessType' });
     }
     const update = {};
     if (businessType) update.businessType = businessType;
+    if (businessName && businessName.trim()) update.businessName = businessName.trim();
+    if (phone !== undefined) update.phone = String(phone).trim().slice(0, 20);
+    if (address !== undefined) update.address = String(address).trim().slice(0, 200);
+    if (receiptFooter !== undefined) update.receiptFooter = String(receiptFooter).trim().slice(0, 200);
+
     const user = await User.findByIdAndUpdate(req.user._id, { $set: update }, { new: true });
     res.json({
       id: user._id,
@@ -188,6 +204,10 @@ export async function updateProfile(req, res) {
       role: user.role,
       businessType: user.businessType,
       trialExpiry: user.trialExpiry,
+      subscriptionExpiry: user.subscriptionExpiry || null,
+      phone: user.phone || '',
+      address: user.address || '',
+      receiptFooter: user.receiptFooter || '',
       isActive: user.isActive(),
     });
   } catch (error) {

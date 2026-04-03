@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAppStore, Order } from '@/lib/store'
-import { ordersAPI } from '@/lib/api'
+import { ordersAPI, authAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 import ReceiptModal from './ReceiptModal'
 import { generateReceipt } from '@/lib/printer/escpos'
@@ -73,6 +73,8 @@ export default function PaymentModal({ subtotal, discountAmount, total, onClose,
       })
 
       clearCurrentOrder()
+      // Sync next bill number from DB (non-blocking)
+      authAPI.nextBill().then(r => clearCurrentOrder(r.data.counter)).catch(() => {})
       toast.success('Order completed!')
       setCompletedOrder(data)
     } catch {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
-import { ordersAPI } from '@/lib/api'
+import { ordersAPI, authAPI } from '@/lib/api'
 import toast from 'react-hot-toast'
 import ItemMarksSelector from './ItemMarksSelector'
 import PaymentModal from './modals/PaymentModal'
@@ -64,6 +64,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
       })
       setOrders([data, ...orders])
       clearCurrentOrder()
+      authAPI.nextBill().then(r => clearCurrentOrder(r.data.counter)).catch(() => {})
       toast.success(`Bill ${data.customerName} queued!`)
       onClose?.()
     } catch {
@@ -76,6 +77,7 @@ export default function CurrentOrderBuilder({ onClose }: CurrentOrderBuilderProp
   const handleClear = () => {
     if (currentOrder.items.length === 0) return
     clearCurrentOrder()
+    authAPI.nextBill().then(r => clearCurrentOrder(r.data.counter)).catch(() => {})
     toast.success('Order cleared')
   }
 

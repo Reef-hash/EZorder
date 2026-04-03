@@ -84,7 +84,9 @@ export const authAPI = {
   resetPassword: (token: string, password: string) =>
     api.post('/api/auth/reset-password', { token, password }),
   getMe: () => api.get('/api/auth/me'),
-  updateProfile: (data: { businessType?: string }) => api.patch('/api/auth/profile', data),
+  updateProfile: (data: any) => api.patch('/api/auth/profile', data),
+  nextBill: () => api.get('/api/auth/next-bill'),
+  resetBill: () => api.patch('/api/auth/reset-bill'),
 }
 
 // Admin

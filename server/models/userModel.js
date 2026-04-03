@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
   resetTokenExpiry: { type: Date, default: null },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   businessType: { type: String, enum: ['restaurant', 'retail', 'both'], default: 'restaurant' },
+  phone: { type: String, default: '' },
+  address: { type: String, default: '' },
+  receiptFooter: { type: String, default: '' },
+  billCounter: { type: Number, default: 1 },
 }, { timestamps: true });
 
 // Hash password before save

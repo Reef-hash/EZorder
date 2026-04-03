@@ -129,6 +129,9 @@ export interface User {
   trialExpiry?: string
   subscriptionExpiry?: string | null
   businessType?: 'restaurant' | 'retail' | 'both'
+  phone?: string
+  address?: string
+  receiptFooter?: string
 }
 
 interface AppStore {
@@ -171,7 +174,7 @@ interface AppStore {
   setDiscount: (discount: number, discountType: 'amount' | 'percent') => void
   splitOrderItem: (lineId: string) => void
   toggleItemMark: (lineId: string, markId: string) => void
-  clearCurrentOrder: () => void
+  clearCurrentOrder: (nextCounter?: number) => void
   
   // Marks actions
   setMarks: (marks: Mark[]) => void
@@ -349,9 +352,10 @@ export const useAppStore = create<AppStore>((set) => ({
       },
     })),
 
-  clearCurrentOrder: () =>
+  clearCurrentOrder: (nextCounter?: number) =>
     set((state) => {
-      const next = loadCounter(state.user?._id) + 1
+      // Use DB-supplied counter if provided, otherwise fall back to local
+      const next = nextCounter ?? (loadCounter(state.user?._id) + 1)
       saveCounter(next, state.user?._id)
       return {
         orderCounter: next,

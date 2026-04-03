@@ -15,6 +15,7 @@ import tableRoutes from './routes/tableRoutes.js';
 import printerRoutes from './routes/printerRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 import { adminMiddleware } from './middleware/adminMiddleware.js';
+import { startExpiryReminderCron } from './cron/expiryReminder.js';
 
 dotenv.config();
 
@@ -100,6 +101,7 @@ async function startServer() {
   app.listen(PORT, async () => {
     console.log(`✓ EZOrder running on http://localhost:${PORT}`);
     await setupAdminIfNeeded();
+    startExpiryReminderCron();
   });
 }
 
