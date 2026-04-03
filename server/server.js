@@ -27,6 +27,7 @@ app.use(helmet());
 
 // CORS — restrict to known origins only
 const allowedOrigins = [
+  'https://e-zorder.vercel.app',
   process.env.FRONTEND_URL,
   'http://localhost:3001',
   'http://localhost:3000',
