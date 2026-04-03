@@ -44,7 +44,7 @@ router.post('/print', (req, res) => {
   if (!host) return res.status(400).json({ message: 'host is required' })
   if (!data)  return res.status(400).json({ message: 'data is required' })
 
-  let buffer: Buffer
+  let buffer
   try {
     buffer = Buffer.from(data, 'base64')
   } catch {
