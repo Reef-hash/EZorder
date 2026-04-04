@@ -119,7 +119,6 @@ export const reportsAPI = {
     api.get('/api/reports/profit-loss', { params }),
   exportUrl: (from?: string, to?: string) => {
     const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
     const q = new URLSearchParams()
     if (from) q.set('from', from)
     if (to) q.set('to', to)
