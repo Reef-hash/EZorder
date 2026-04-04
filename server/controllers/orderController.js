@@ -68,6 +68,7 @@ async function createOrder(req, res) {
 
     // Fetch enabled tax rules for this user
     const taxRules = await taxRuleModel.getEnabledTaxRules(req.user._id);
+    console.log(`[createOrder] Tax rules for user ${req.user._id}:`, taxRules);
 
     // Helper: determine which tax rule applies to an item
     function getTaxRateForItem(item, product) {
@@ -76,12 +77,13 @@ async function createOrder(req, res) {
 
       // Find matching tax rule (in order: specific items, then categories, then all)
       const itemRule = taxRules.find(r => r.applicableTo === 'items' && r.items.some(n => n.toLowerCase() === itemName));
-      if (itemRule) return itemRule.rate;
-
       const catRule = taxRules.find(r => r.applicableTo === 'categories' && r.categories.some(c => c.toLowerCase() === category));
-      if (catRule) return catRule.rate;
-
       const allRule = taxRules.find(r => r.applicableTo === 'all');
+      
+      console.log(`[getTaxRateForItem] Item: "${item.name}", Category: "${category}", itemRule: ${itemRule?.rate || 'none'}, catRule: ${catRule?.rate || 'none'}, allRule: ${allRule?.rate || 'none'}`);
+
+      if (itemRule) return itemRule.rate;
+      if (catRule) return catRule.rate;
       return allRule ? allRule.rate : 0;
     }
 
@@ -90,6 +92,7 @@ async function createOrder(req, res) {
       const taxRate = getTaxRateForItem(item, prod);
       // SST is calculated on pre-discount item price (tax-exclusive pricing)
       const taxAmount = parseFloat(((item.price * item.quantity * taxRate) / 100).toFixed(2));
+      console.log(`[itemsWithCost] "${item.name}": price=${item.price}, qty=${item.quantity}, taxRate=${taxRate}%, taxAmount=${taxAmount}`);
       return {
         ...item,
         costPrice: prod?.costPrice ?? null,
@@ -99,6 +102,7 @@ async function createOrder(req, res) {
     });
 
     const totalTax = parseFloat(itemsWithCost.reduce((s, i) => s + (i.taxAmount ?? 0), 0).toFixed(2));
+    console.log(`[createOrder] totalTax calculated: ${totalTax}`);
 
     const newOrder = await orderModel.addOrder({
       customerName: customerName.trim(),
