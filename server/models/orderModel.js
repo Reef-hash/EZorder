@@ -5,6 +5,8 @@ const orderItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   costPrice: { type: Number, default: null }, // snapshot at order time for accurate COGS history
+  taxRate: { type: Number, default: 0 },       // SST rate snapshot (0, 6, 10)
+  taxAmount: { type: Number, default: 0 },     // SST amount for this line item
   quantity: { type: Number, required: true, min: 1 },
   marks: [String],
 }, { _id: false });
@@ -23,6 +25,7 @@ const orderSchema = new mongoose.Schema({
   discountType: { type: String, enum: ['amount', 'percent'], default: 'amount' },
   amountPaid: { type: Number, default: null },
   change: { type: Number, default: null },
+  totalTax: { type: Number, default: 0 },  // Total SST collected for this order
   whatsappMessage: { type: String },
 }, { timestamps: true });
 
@@ -66,6 +69,7 @@ async function addOrder(orderData, userId) {
     discountType: orderData.discountType || 'amount',
     amountPaid: orderData.amountPaid || null,
     change: orderData.change != null ? orderData.change : null,
+    totalTax: orderData.totalTax ?? 0,
     whatsappMessage: generateWhatsAppMessage(orderData.customerName, orderData.items, orderData.total),
   });
   return toPlain(doc);

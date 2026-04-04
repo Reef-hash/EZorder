@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
   trackStock: { type: Boolean, default: false },
   stockQty: { type: Number, default: null },
   costPrice: { type: Number, default: null },
+  taxRate: { type: Number, enum: [0, 6, 10], default: 0 }, // SST: 0% (exempt), 6% (service tax), 10% (sales tax)
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
@@ -42,6 +43,7 @@ async function addProduct(productData, userId) {
     trackStock: productData.trackStock || false,
     stockQty: productData.trackStock ? (productData.stockQty != null ? parseInt(productData.stockQty) : 0) : null,
     costPrice: productData.costPrice ? parseFloat(productData.costPrice) : null,
+    taxRate: productData.taxRate != null ? parseInt(productData.taxRate) : 0,
   });
   return toPlain(doc);
 }

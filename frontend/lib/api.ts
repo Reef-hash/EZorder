@@ -117,6 +117,14 @@ export const expensesAPI = {
 export const reportsAPI = {
   profitLoss: (params?: { from?: string; to?: string }) =>
     api.get('/api/reports/profit-loss', { params }),
+  byItem: (params?: { from?: string; to?: string }) =>
+    api.get('/api/reports/by-item', { params }),
+  byCategory: (params?: { from?: string; to?: string }) =>
+    api.get('/api/reports/by-category', { params }),
+  byPayment: (params?: { from?: string; to?: string }) =>
+    api.get('/api/reports/by-payment', { params }),
+  sst: (params?: { from?: string; to?: string }) =>
+    api.get('/api/reports/sst', { params }),
   exportUrl: (from?: string, to?: string) => {
     const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
     const q = new URLSearchParams()

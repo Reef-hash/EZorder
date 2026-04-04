@@ -179,6 +179,9 @@ export async function getMe(req, res) {
     phone: req.user.phone || '',
     address: req.user.address || '',
     receiptFooter: req.user.receiptFooter || '',
+    tinNumber: req.user.tinNumber || '',
+    sstRegNo: req.user.sstRegNo || '',
+    sstEnabled: req.user.sstEnabled || false,
     isActive: req.user.isActive(),
   });
 }
@@ -186,7 +189,7 @@ export async function getMe(req, res) {
 // PATCH /api/auth/profile
 export async function updateProfile(req, res) {
   try {
-    const { businessType, businessName, phone, address, receiptFooter } = req.body;
+    const { businessType, businessName, phone, address, receiptFooter, tinNumber, sstRegNo, sstEnabled } = req.body;
     const validTypes = ['restaurant', 'retail', 'both'];
     if (businessType && !validTypes.includes(businessType)) {
       return res.status(400).json({ message: 'Invalid businessType' });
@@ -197,6 +200,9 @@ export async function updateProfile(req, res) {
     if (phone !== undefined) update.phone = String(phone).trim().slice(0, 20);
     if (address !== undefined) update.address = String(address).trim().slice(0, 200);
     if (receiptFooter !== undefined) update.receiptFooter = String(receiptFooter).trim().slice(0, 200);
+    if (tinNumber !== undefined) update.tinNumber = String(tinNumber).trim().slice(0, 20);
+    if (sstRegNo !== undefined) update.sstRegNo = String(sstRegNo).trim().slice(0, 30);
+    if (sstEnabled !== undefined) update.sstEnabled = Boolean(sstEnabled);
 
     const user = await User.findByIdAndUpdate(req.user._id, { $set: update }, { new: true });
     res.json({
@@ -211,6 +217,9 @@ export async function updateProfile(req, res) {
       phone: user.phone || '',
       address: user.address || '',
       receiptFooter: user.receiptFooter || '',
+      tinNumber: user.tinNumber || '',
+      sstRegNo: user.sstRegNo || '',
+      sstEnabled: user.sstEnabled || false,
       isActive: user.isActive(),
     });
   } catch (error) {

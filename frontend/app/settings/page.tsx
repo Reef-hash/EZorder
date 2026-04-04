@@ -20,6 +20,9 @@ export default function SettingsPage() {
     address: '',
     receiptFooter: '',
     businessType: 'restaurant' as 'restaurant' | 'retail' | 'both',
+    tinNumber: '',
+    sstRegNo: '',
+    sstEnabled: false,
   })
 
   useEffect(() => {
@@ -34,6 +37,9 @@ export default function SettingsPage() {
       address: user.address || '',
       receiptFooter: user.receiptFooter || '',
       businessType: user.businessType || 'restaurant',
+      tinNumber: user.tinNumber || '',
+      sstRegNo: user.sstRegNo || '',
+      sstEnabled: user.sstEnabled || false,
     })
   }, [user?._id])
 
@@ -184,6 +190,62 @@ export default function SettingsPage() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* LHDN / Tax section */}
+          <div className="bg-white/4 border border-amber-500/15 rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wide">
+              <i className="fas fa-landmark mr-2 text-amber-400"></i>Cukai &amp; LHDN
+            </h2>
+            <p className="text-[11px] text-slate-600">Maklumat ini digunakan dalam laporan Excel LHDN yang boleh dimuat turun dari tab Jualan.</p>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                No. TIN (Tax Identification Number)
+              </label>
+              <input
+                type="text"
+                value={form.tinNumber}
+                onChange={e => setForm(f => ({ ...f, tinNumber: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50"
+                placeholder="Contoh: C1234567890"
+                maxLength={20}
+              />
+              <p className="text-[10px] text-slate-600 mt-1">Semak TIN anda di <span className="text-blue-400">mytax.hasil.gov.my</span></p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                No. Pendaftaran SST
+              </label>
+              <input
+                type="text"
+                value={form.sstRegNo}
+                onChange={e => setForm(f => ({ ...f, sstRegNo: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50"
+                placeholder="Contoh: W12-1234-12345678"
+                maxLength={30}
+              />
+              <p className="text-[10px] text-slate-600 mt-1">Hanya diisi jika perniagaan anda berdaftar SST</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-slate-400">Aktifkan SST (6% Cukai Perkhidmatan)</p>
+                <p className="text-[10px] text-slate-600 mt-0.5">Item akan dikenakan cukai 6% apabila dijual</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, sstEnabled: !f.sstEnabled }))}
+                className={`relative w-11 h-6 rounded-full transition-colors ${
+                  form.sstEnabled ? 'bg-amber-500' : 'bg-white/10'
+                }`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                  form.sstEnabled ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              </button>
             </div>
           </div>
 

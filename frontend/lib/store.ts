@@ -61,6 +61,8 @@ export interface OrderItem {
   name: string
   price: number
   costPrice?: number | null
+  taxRate?: number
+  taxAmount?: number
   quantity: number
   marks: string[]
 }
@@ -79,6 +81,7 @@ export interface Order {
   discountType?: 'amount' | 'percent'
   amountPaid?: number | null
   change?: number | null
+  totalTax?: number
   createdAt: string
 }
 
@@ -133,11 +136,47 @@ export interface Expense {
 
 export interface ProfitLoss {
   revenue: number
+  revenueBeforeTax: number
+  totalTax: number
   cogs: number
   opex: number
   grossProfit: number
   netProfit: number
   orderCount: number
+}
+
+export interface SalesByItem {
+  name: string
+  qty: number
+  revenue: number
+  cogs: number
+  tax: number
+  grossProfit: number
+}
+
+export interface SalesByCategory {
+  category: string
+  qty: number
+  revenue: number
+  cogs: number
+  grossProfit: number
+}
+
+export interface SalesByPayment {
+  method: string
+  count: number
+  total: number
+  tax: number
+}
+
+export interface SstSummary {
+  grossSales: number
+  taxableAmount: number
+  exemptAmount: number
+  totalTax: number
+  netSales: number
+  orderCount: number
+  period: { from?: string; to?: string }
 }
 
 export interface User {
@@ -152,6 +191,9 @@ export interface User {
   phone?: string
   address?: string
   receiptFooter?: string
+  tinNumber?: string
+  sstRegNo?: string
+  sstEnabled?: boolean
 }
 
 interface AppStore {

@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema({
   address: { type: String, default: '' },
   receiptFooter: { type: String, default: '' },
   billCounter: { type: Number, default: 1 },
+  tinNumber: { type: String, default: '' },       // LHDN Tax Identification Number
+  sstRegNo: { type: String, default: '' },         // SST Registration Number (if applicable)
+  sstEnabled: { type: Boolean, default: false },   // Toggle SST on/off for receipts
 }, { timestamps: true });
 
 // Hash password before save

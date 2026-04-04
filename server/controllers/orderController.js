@@ -57,22 +57,34 @@ async function createOrder(req, res) {
       : parseFloat(discount) || 0;
     const calculatedTotal = Math.max(0, rawTotal - discountAmt);
 
-    // Snapshot costPrice from product catalogue at order time so COGS history stays accurate
+    // Snapshot costPrice + taxRate from product catalogue at order time (accurate COGS & SST history)
     const Product = mongoose.model('Product');
     const productIds = [...new Set(items.map(i => i.id).filter(Boolean))];
     const productDocs = productIds.length
-      ? await Product.find({ _id: { $in: productIds }, userId: req.user._id }, { costPrice: 1 }).lean()
+      ? await Product.find({ _id: { $in: productIds }, userId: req.user._id }, { costPrice: 1, taxRate: 1 }).lean()
       : [];
-    const costMap = Object.fromEntries(productDocs.map(p => [p._id.toString(), p.costPrice ?? null]));
-    const itemsWithCost = items.map(item => ({
-      ...item,
-      costPrice: item.id ? (costMap[item.id] ?? null) : null,
-    }));
+    const productMap = Object.fromEntries(productDocs.map(p => [p._id.toString(), p]));
+
+    const itemsWithCost = items.map(item => {
+      const prod = item.id ? productMap[item.id] : null;
+      const taxRate = prod?.taxRate ?? 0;
+      // SST is calculated on pre-discount item price (tax-exclusive pricing)
+      const taxAmount = parseFloat(((item.price * item.quantity * taxRate) / 100).toFixed(2));
+      return {
+        ...item,
+        costPrice: prod?.costPrice ?? null,
+        taxRate,
+        taxAmount,
+      };
+    });
+
+    const totalTax = parseFloat(itemsWithCost.reduce((s, i) => s + (i.taxAmount ?? 0), 0).toFixed(2));
 
     const newOrder = await orderModel.addOrder({
       customerName: customerName.trim(),
       items: itemsWithCost,
       total: calculatedTotal,
+      totalTax,
       marks: Array.isArray(marks) ? marks : [],
       paymentMethod: paymentMethod || null,
       status: status || 'pending',
