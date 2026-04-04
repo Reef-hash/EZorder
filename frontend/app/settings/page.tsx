@@ -5,13 +5,17 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useAppStore } from '@/lib/store'
 import Navbar from '@/components/Navbar'
+import TaxRulesSettings from '@/components/TaxRulesSettings'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
+
+type SettingsTab = 'account' | 'tax'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { user, initAuth } = useAuth()
   const { setUser } = useAppStore()
+  const [tab, setTab] = useState<SettingsTab>('account')
 
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
@@ -75,56 +79,85 @@ export default function SettingsPage() {
       <Navbar />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-slate-400 hover:text-white transition">
-            <i className="fas fa-arrow-left"></i>
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-white">Tetapan Akaun</h1>
-            <p className="text-xs text-slate-500">Maklumat bisnes &amp; profil</p>
-          </div>
-        </div>
-
-        {/* Subscription status */}
-        <div className={`rounded-xl border p-4 ${
-          user.plan === 'active'
-            ? 'bg-amber-500/10 border-amber-500/30'
-            : 'bg-white/5 border-white/10'
-        }`}>
-          <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="text-slate-400 hover:text-white transition">
+              <i className="fas fa-arrow-left"></i>
+            </button>
             <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Plan</p>
-              <p className={`text-lg font-bold ${user.plan === 'active' ? 'text-amber-400' : 'text-slate-300'}`}>
-                {user.plan === 'active' ? '✦ PRO' : 'Trial'}
-              </p>
-              {daysLeft !== null && (
-                <p className={`text-xs mt-0.5 ${daysLeft <= 3 ? 'text-red-400' : 'text-slate-500'}`}>
-                  {daysLeft === 0 ? 'Tamat hari ini' : `Tamat dalam ${daysLeft} hari`}
-                </p>
-              )}
+              <h1 className="text-xl font-bold text-white">Tetapan</h1>
+              <p className="text-xs text-slate-500">Urus akaun, cukai & profil</p>
             </div>
-            {user.plan !== 'active' && (
-              <button
-                onClick={() => router.push('/subscribe')}
-                className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-lg text-sm transition"
-              >
-                Langgan →
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Profile form */}
-        <form onSubmit={handleSave} className="space-y-4">
-          <div className="bg-white/4 border border-white/8 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wide">
-              <i className="fas fa-store mr-2 text-amber-400"></i>Maklumat Bisnes
-            </h2>
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-white/8">
+          <button
+            onClick={() => setTab('account')}
+            className={`px-4 py-3 text-xs font-semibold border-b-2 transition-all ${
+              tab === 'account'
+                ? 'border-amber-400 text-amber-400'
+                : 'border-transparent text-slate-500 hover:text-slate-400'
+            }`}
+          >
+            <i className="fas fa-user mr-1.5"></i>Akaun
+          </button>
+          <button
+            onClick={() => setTab('tax')}
+            className={`px-4 py-3 text-xs font-semibold border-b-2 transition-all ${
+              tab === 'tax'
+                ? 'border-amber-400 text-amber-400'
+                : 'border-transparent text-slate-500 hover:text-slate-400'
+            }`}
+          >
+            <i className="fas fa-landmark mr-1.5"></i>Cukai SST
+          </button>
+        </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1.5">Nama Bisnes</label>
-              <input
-                type="text"
+        {/* Account Tab */}
+        {tab === 'account' && (
+          <div className="space-y-6">
+            {/* Subscription status */}
+            <div className={`rounded-xl border p-4 ${
+              user.plan === 'active'
+                ? 'bg-amber-500/10 border-amber-500/30'
+                : 'bg-white/5 border-white/10'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Plan</p>
+                  <p className={`text-lg font-bold ${user.plan === 'active' ? 'text-amber-400' : 'text-slate-300'}`}>
+                    {user.plan === 'active' ? '✦ PRO' : 'Trial'}
+                  </p>
+                  {daysLeft !== null && (
+                    <p className={`text-xs mt-0.5 ${daysLeft <= 3 ? 'text-red-400' : 'text-slate-500'}`}>
+                      {daysLeft === 0 ? 'Tamat hari ini' : `Tamat dalam ${daysLeft} hari`}
+                    </p>
+                  )}
+                </div>
+                {user.plan !== 'active' && (
+                  <button
+                    onClick={() => router.push('/subscribe')}
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-lg text-sm transition"
+                  >
+                    Langgan →
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Profile form */}
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="bg-white/4 border border-white/8 rounded-xl p-5 space-y-4">
+                <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wide">
+                  <i className="fas fa-store mr-2 text-amber-400"></i>Maklumat Bisnes
+                </h2>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">Nama Bisnes</label>
+                  <input
+                    type="text"
                 value={form.businessName}
                 onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50"
@@ -272,7 +305,14 @@ export default function SettingsPage() {
             <i className="fas fa-save"></i>
             {saving ? 'Menyimpan...' : 'Simpan Tetapan'}
           </button>
-        </form>
+            </form>
+          </div>
+        )}
+
+        {/* Tax Tab */}
+        {tab === 'tax' && (
+          <TaxRulesSettings />
+        )}
       </main>
     </div>
   )

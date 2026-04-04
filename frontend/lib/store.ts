@@ -97,8 +97,18 @@ export interface Product {
   trackStock: boolean
   stockQty: number | null
   costPrice: number | null
-  taxRate?: number
   createdAt: string
+}
+
+export interface TaxRule {
+  _id?: string
+  name: string
+  rate: number
+  type: 'service' | 'sales' | 'other'
+  applicableTo: 'all' | 'categories' | 'items'
+  categories: string[]
+  items: string[]
+  enabled: boolean
 }
 
 export interface Category {

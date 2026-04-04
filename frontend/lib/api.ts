@@ -134,4 +134,12 @@ export const reportsAPI = {
   },
 }
 
+// Tax Rules
+export const taxRulesAPI = {
+  getAll: () => api.get('/api/tax-rules'),
+  create: (data: any) => api.post('/api/tax-rules', data),
+  update: (id: string, data: any) => api.patch(`/api/tax-rules/${id}`, data),
+  delete: (id: string) => api.delete(`/api/tax-rules/${id}`),
+}
+
 export default api

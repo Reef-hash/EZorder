@@ -1,5 +1,6 @@
 import * as orderModel from '../models/orderModel.js';
 import * as productModel from '../models/productModel.js';
+import * as taxRuleModel from '../models/taxRuleModel.js';
 import mongoose from 'mongoose';
 
 /**
@@ -57,17 +58,36 @@ async function createOrder(req, res) {
       : parseFloat(discount) || 0;
     const calculatedTotal = Math.max(0, rawTotal - discountAmt);
 
-    // Snapshot costPrice + taxRate from product catalogue at order time (accurate COGS & SST history)
+    // Snapshot costPrice + category from product catalogue at order time (accurate COGS & tax history)
     const Product = mongoose.model('Product');
     const productIds = [...new Set(items.map(i => i.id).filter(Boolean))];
     const productDocs = productIds.length
-      ? await Product.find({ _id: { $in: productIds }, userId: req.user._id }, { costPrice: 1, taxRate: 1 }).lean()
+      ? await Product.find({ _id: { $in: productIds }, userId: req.user._id }, { costPrice: 1, category: 1 }).lean()
       : [];
     const productMap = Object.fromEntries(productDocs.map(p => [p._id.toString(), p]));
 
+    // Fetch enabled tax rules for this user
+    const taxRules = await taxRuleModel.getEnabledTaxRules(req.user._id);
+
+    // Helper: determine which tax rule applies to an item
+    function getTaxRateForItem(item, product) {
+      const itemName = item.name.toLowerCase();
+      const category = product?.category?.toLowerCase() || '';
+
+      // Find matching tax rule (in order: specific items, then categories, then all)
+      const itemRule = taxRules.find(r => r.applicableTo === 'items' && r.items.some(n => n.toLowerCase() === itemName));
+      if (itemRule) return itemRule.rate;
+
+      const catRule = taxRules.find(r => r.applicableTo === 'categories' && r.categories.some(c => c.toLowerCase() === category));
+      if (catRule) return catRule.rate;
+
+      const allRule = taxRules.find(r => r.applicableTo === 'all');
+      return allRule ? allRule.rate : 0;
+    }
+
     const itemsWithCost = items.map(item => {
       const prod = item.id ? productMap[item.id] : null;
-      const taxRate = prod?.taxRate ?? 0;
+      const taxRate = getTaxRateForItem(item, prod);
       // SST is calculated on pre-discount item price (tax-exclusive pricing)
       const taxAmount = parseFloat(((item.price * item.quantity * taxRate) / 100).toFixed(2));
       return {
