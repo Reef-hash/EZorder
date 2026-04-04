@@ -21,6 +21,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
     trackStock: false,
     stockQty: '',
     costPrice: '',
+    taxRate: '0',
   })
   const [loading, setLoading] = useState(false)
 
@@ -42,6 +43,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         trackStock: formData.trackStock,
         stockQty: formData.trackStock ? parseInt(formData.stockQty || '0') : null,
         costPrice: formData.costPrice ? parseFloat(formData.costPrice) : null,
+        taxRate: parseInt(formData.taxRate) || 0,
       })
 
       toast.success('Product added successfully!')
@@ -54,6 +56,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         trackStock: false,
         stockQty: '',
         costPrice: '',
+        taxRate: '0',
       })
       selectCategory(null)
       onSuccess()
@@ -180,6 +183,27 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
           )}
         </div>
       )}
+
+      {/* SST Tax Rate */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-400 mb-1.5">Kadar SST</label>
+        <div className="flex gap-2">
+          {[{ v: '0', label: '0% — Bebas' }, { v: '6', label: '6% — Perkhidmatan' }, { v: '10', label: '10% — Jualan' }].map(opt => (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setFormData({ ...formData, taxRate: opt.v })}
+              className={`flex-1 py-2 rounded-lg text-xs font-semibold border transition-all ${
+                formData.taxRate === opt.v
+                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+                  : 'bg-white/5 border-white/10 text-slate-400 hover:border-amber-500/25'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
         <i className="fas fa-plus"></i>

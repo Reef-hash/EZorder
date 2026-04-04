@@ -97,6 +97,7 @@ export interface Product {
   trackStock: boolean
   stockQty: number | null
   costPrice: number | null
+  taxRate?: number
   createdAt: string
 }
 
