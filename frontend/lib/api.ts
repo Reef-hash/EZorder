@@ -142,4 +142,13 @@ export const taxRulesAPI = {
   delete: (id: string) => api.delete(`/api/tax-rules/${id}`),
 }
 
+// Staff
+export const staffAPI = {
+  getAll: () => api.get('/api/staff'),
+  create: (data: { name: string }) => api.post('/api/staff', data),
+  delete: (id: string) => api.delete(`/api/staff/${id}`),
+  toggle: (id: string) => api.patch(`/api/staff/${id}/toggle`),
+  login: (qrToken: string) => api.post('/api/auth/staff-login', { qrToken }),
+}
+
 export default api

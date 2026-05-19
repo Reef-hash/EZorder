@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import validator from 'validator';
 import User from '../models/userModel.js';
+import Staff from '../models/staffModel.js';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService.js';
 
 function generateToken(userId) {
@@ -225,5 +226,50 @@ export async function updateProfile(req, res) {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Failed to update profile' });
+  }
+}
+
+// POST /api/auth/staff-login — public, no authMiddleware
+export async function staffLogin(req, res) {
+  try {
+    const { qrToken } = req.body;
+    if (!qrToken || typeof qrToken !== 'string') {
+      return res.status(400).json({ message: 'QR token diperlukan' });
+    }
+
+    const staff = await Staff.findOne({ qrToken: qrToken.trim() });
+    if (!staff || !staff.active) {
+      return res.status(401).json({ message: 'QR code tidak sah atau staff tidak aktif' });
+    }
+
+    const owner = await User.findById(staff.ownerId).select('-password');
+    if (!owner) return res.status(401).json({ message: 'Akaun pemilik tidak dijumpai' });
+
+    if (!owner.isActive()) {
+      return res.status(403).json({ message: 'Langganan tamat', code: 'SUBSCRIPTION_EXPIRED' });
+    }
+
+    const token = jwt.sign(
+      { userId: owner._id, staffId: staff._id, staffName: staff.name, type: 'staff' },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' },
+    );
+
+    res.json({
+      token,
+      user: {
+        id: owner._id,
+        businessName: owner.businessName,
+        plan: owner.plan,
+        businessType: owner.businessType || 'restaurant',
+        isActive: owner.isActive(),
+        staffId: staff._id,
+        staffName: staff.name,
+        staffRole: 'staff',
+      },
+    });
+  } catch (error) {
+    console.error('staffLogin error:', error);
+    res.status(500).json({ message: 'Staff login gagal' });
   }
 }

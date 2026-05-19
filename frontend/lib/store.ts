@@ -205,6 +205,10 @@ export interface User {
   tinNumber?: string
   sstRegNo?: string
   sstEnabled?: boolean
+  // Staff-specific (only set when logged in as staff)
+  staffId?: string
+  staffName?: string
+  staffRole?: 'owner' | 'staff'
 }
 
 interface AppStore {

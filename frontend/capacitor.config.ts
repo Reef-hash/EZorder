@@ -27,14 +27,15 @@ const config: CapacitorConfig = {
   plugins: {
     // Splash screen config (install @capacitor/splash-screen)
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#0f172a',
+      launchShowDuration: 1500,
+      backgroundColor: '#F4F5F7',
       showSpinner: false,
+      androidSplashResourceName: 'splash',
     },
     // Status bar config (install @capacitor/status-bar)
     StatusBar: {
       style: 'dark',
-      backgroundColor: '#0f172a',
+      backgroundColor: '#FFFFFF',
     },
   },
 }

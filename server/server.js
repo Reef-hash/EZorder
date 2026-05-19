@@ -16,8 +16,10 @@ import printerRoutes from './routes/printerRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import taxRuleRoutes from './routes/taxRuleRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 import { adminMiddleware } from './middleware/adminMiddleware.js';
+import { staffRestrict } from './middleware/staffMiddleware.js';
 import { startExpiryReminderCron } from './cron/expiryReminder.js';
 
 dotenv.config();
@@ -84,9 +86,10 @@ app.use('/api/marks', apiLimiter, authMiddleware, markRoutes);
 app.use('/api/categories', apiLimiter, authMiddleware, categoryRoutes);
 app.use('/api/tables', apiLimiter, authMiddleware, tableRoutes);
 app.use('/api/printer', apiLimiter, authMiddleware, printerRoutes);
-app.use('/api/expenses', apiLimiter, authMiddleware, expenseRoutes);
-app.use('/api/reports', apiLimiter, authMiddleware, reportRoutes);
-app.use('/api/tax-rules', apiLimiter, authMiddleware, taxRuleRoutes);
+app.use('/api/expenses', apiLimiter, authMiddleware, staffRestrict, expenseRoutes);
+app.use('/api/reports', apiLimiter, authMiddleware, staffRestrict, reportRoutes);
+app.use('/api/tax-rules', apiLimiter, authMiddleware, staffRestrict, taxRuleRoutes);
+app.use('/api/staff', apiLimiter, authMiddleware, staffRestrict, staffRoutes);
 
 // One-time admin setup via env var (safe: only runs on server startup)
 async function setupAdminIfNeeded() {

@@ -30,8 +30,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Always dark mode */}
-        <script dangerouslySetInnerHTML={{ __html: `document.documentElement.classList.add('dark');` }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
