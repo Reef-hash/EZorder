@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { staffAPI } from '@/lib/api'
 import { useAppStore } from '@/lib/store'
 import toast from 'react-hot-toast'
 
-export default function StaffLoginPage() {
+function StaffLoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setUser } = useAppStore()
@@ -91,5 +91,17 @@ export default function StaffLoginPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function StaffLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F4F5F7] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <StaffLoginContent />
+    </Suspense>
   )
 }
