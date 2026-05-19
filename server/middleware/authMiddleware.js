@@ -5,7 +5,15 @@ import Staff from '../models/staffModel.js';
 export async function authMiddleware(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
+
+    // AUTH BYPASS MODE — no token provided, use first user in DB (pre-licensing phase)
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      const user = await User.findOne({}).select('-password');
+      if (user) {
+        req.user = user;
+        req.isStaff = false;
+        return next();
+      }
       return res.status(401).json({ message: 'No token provided' });
     }
 

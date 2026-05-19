@@ -22,9 +22,6 @@ export const useAuth = () => {
   }
 
   const initAuth = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-
     // Check if this is a staff session (staff user is stored locally)
     const staffUserRaw = localStorage.getItem(STAFF_USER_KEY)
     if (staffUserRaw) {
@@ -37,6 +34,7 @@ export const useAuth = () => {
       }
     }
 
+    // Fetch user from backend — works without token (bypass mode, pre-licensing)
     try {
       const response = await api.get('/api/auth/me')
       setUser(response.data)

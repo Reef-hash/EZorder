@@ -48,7 +48,7 @@ export default function DashboardPage() {
       dataLoadedRef.current = true
       loadAllData().finally(() => setLoading(false))
     } else {
-      router.push('/')
+      // No user yet — keep waiting (auth bypassed, backend will return first user)
       setLoading(false)
     }
   }, [authChecked, user, router, loadAllData])
